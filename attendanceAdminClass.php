@@ -141,15 +141,15 @@ class AttendanceAdmin extends AttendanceClass {
 	private function activationPlugin(){
 
 		// 過去にに有効化されている場合
-		if(get_option(PLUGIN_VERSION_NAME)){
+		if(get_option(PLUGIN_TABLE_VERSION_NAME)){
 
-			$old_pluginVersion = get_option(PLUGIN_VERSION_NAME);
+			$old_pluginVersion = get_option(PLUGIN_TABLE_VERSION_NAME);
 			// バージョンの小数点以下を切捨て
 			$old_pluginVersion = floor($old_pluginVersion);
-			$new_pluginVersion = floor(PLUGIN_VERSION);
+			$new_pluginVersion = floor(PLUGIN_TABLE_VERSION);
 
 			// 過去の有効にしたバージョンと現バージョンのテーブル構造が違う場合、新規にテーブルを作成
-			// テーブル構造を変えるたびに、バージョンを1.2=>2.0と変えていく予定
+			// テーブル構造を変えるたびに、バージョンを1.0=>2.0と変えていく予定
 			if($old_pluginVersion!=$new_pluginVersion){
 
 				self::newTable();
@@ -169,6 +169,7 @@ class AttendanceAdmin extends AttendanceClass {
 
 		// 設定を初期化
 		update_option(PLUGIN_VERSION_NAME, PLUGIN_VERSION);
+		update_option(PLUGIN_TABLE_VERSION_NAME, PLUGIN_TABLE_VERSION);
 		$arr = array(
 				'time_view' => '0', 'time_write' => 'admin', 'license' => 'free', 'view-list' => '1', 'admin-list' => '2', 'clock'=>'1',
 			);
@@ -189,7 +190,7 @@ class AttendanceAdmin extends AttendanceClass {
 		if($table_exists){
 
 			$sql = "DELETE FROM ".PLUGIN_TABLE_NAME.";";
-			self::sql_performs($sql);
+			self::sql_query($sql);
 
 		}else{
 
@@ -478,6 +479,7 @@ class AttendanceAdmin extends AttendanceClass {
 
 		// バージョン情報を保存
 		update_option(PLUGIN_VERSION_NAME, PLUGIN_VERSION);
+		update_option(PLUGIN_TABLE_VERSION_NAME, PLUGIN_TABLE_VERSION);
 
 		// テーブルを作成
 		/*

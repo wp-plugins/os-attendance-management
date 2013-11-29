@@ -11,6 +11,8 @@ class AttendanceClass {
 		add_action('plugins_loaded', array('AttendanceClass', 'plugin_get_option'));
 		// エラー回避のためプラグイン読み込み時にアクション
 		add_action('plugins_loaded', array('AttendanceClass', 'action_level'));
+		// ヘッダの処理
+		add_action('wp_head', array('AttendanceClass', 'action_head'));
 
 	}
 	// オプション取得
@@ -1121,6 +1123,13 @@ class AttendanceClass {
 		}
 
 		return $delete_id;
+
+	}
+	// ヘッダの処理
+	public function action_head(){
+
+		$text = '<meta name="generator" content="os-attendance-management" />'."\n";
+		echo $text;
 
 	}
 	// リスト取得のSQL文
