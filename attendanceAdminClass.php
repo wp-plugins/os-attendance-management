@@ -4,9 +4,9 @@ class AttendanceAdmin extends AttendanceClass {
 	public function __construct(){
 
 		parent::__construct();
-		// プラグイン有効化されたときに実行
+		// プラグインを有効化したとき
 		if(function_exists('register_activation_hook')){
-			register_activation_hook('attendance-management', array('AttendanceAdmin', 'activationPlugin'));
+			//register_activation_hook('attendance-management', array('AttendanceAdmin', 'activationPlugin'));
 		}
 		// まず実行
 		add_action('admin_init', array('AttendanceAdmin', 'actionAdminInit'));
@@ -48,10 +48,12 @@ class AttendanceAdmin extends AttendanceClass {
 		}else{
 
 			// POST処理
-			if(isset($_POST['format'])){
-				self::formatPlugin();
-			}elseif(isset($_POST['option'])){
-				self::optionPost();
+			if(stristr($_GET['page'], "attendance-management") || stristr($_POST['page'], "attendance-management")){
+				if(isset($_POST['format'])){
+					self::formatPlugin();
+				}elseif(isset($_POST['option'])){
+					self::optionPost();
+				}
 			}
 
 			// メニュー表示
@@ -138,7 +140,7 @@ class AttendanceAdmin extends AttendanceClass {
 	*  初期設定
 	*/
 	// プラグインが有効化されたときに実行する
-	private function activationPlugin(){
+	public function activationPlugin(){
 
 		// 過去にに有効化されている場合
 		if(get_option(PLUGIN_TABLE_VERSION_NAME)){
@@ -403,47 +405,51 @@ class AttendanceAdmin extends AttendanceClass {
 
 		}else{
 
-			if($plugin_user_data['level']=='administrator'){
-				$insert_url = 'attendance-management-post.php';
-				$update_url = 'attendance-management-write.php';
-			}else{
-				$insert_url = 'attendance-management-user-post.php';
-				$update_url = 'attendance-management-user-write.php';
-			}
+			if(stristr($_GET['page'], "attendance-management") || stristr($_POST['page'], "attendance-management")){
 
-			if(!empty($_POST['new'])){
-				$insert_id = self::post_insert();
-				// リダイレクト処理
-				if(!empty($insert_id)){
-					wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ok');
-					exit;
+				if($plugin_user_data['level']=='administrator'){
+					$insert_url = 'attendance-management-post.php';
+					$update_url = 'attendance-management-write.php';
 				}else{
-					wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ng');
-					exit;
+					$insert_url = 'attendance-management-user-post.php';
+					$update_url = 'attendance-management-user-write.php';
 				}
 
-			}elseif(!empty($_POST['Delete'])){
-				$delete_id = self::post_delete();
-				// リダイレクト処理
-				if(!empty($delete_id)){
-					wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ok');
-					exit;
-				}else{
-					wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ng');
-					exit;
+				if(!empty($_POST['new'])){
+					$insert_id = self::post_insert();
+					// リダイレクト処理
+					if(!empty($insert_id)){
+						wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ok');
+						exit;
+					}else{
+						wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ng');
+						exit;
+					}
+
+				}elseif(!empty($_POST['Delete'])){
+					$delete_id = self::post_delete();
+					// リダイレクト処理
+					if(!empty($delete_id)){
+						wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ok');
+						exit;
+					}else{
+						wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ng');
+						exit;
+					}
+				}elseif(!empty($_POST['write'])){
+					$update_id = self::post_write();
+					// リダイレクト処理
+					if(!empty($update_id)){
+						wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&did='.$update_id.'&msg=write-ok');
+						exit;
+					}else{
+						wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&msg=write-ng');
+						exit;
+					}
+				}elseif(!empty($_POST['list_search']) || !empty($_POST['search_back_month']) || !empty($_POST['search_now_month']) || !empty($_POST['search_next_month'])){
+					self::list_search_redirect();
 				}
-			}elseif(!empty($_POST['write'])){
-				$update_id = self::post_write();
-				// リダイレクト処理
-				if(!empty($update_id)){
-					wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&did='.$update_id.'&msg=write-ok');
-					exit;
-				}else{
-					wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&msg=write-ng');
-					exit;
-				}
-			}elseif(!empty($_POST['list_search']) || !empty($_POST['search_back_month']) || !empty($_POST['search_now_month']) || !empty($_POST['search_next_month'])){
-				self::list_search_redirect();
+
 			}
 
 		}
@@ -477,10 +483,10 @@ class AttendanceAdmin extends AttendanceClass {
 	// バージョン情報を保存し、プラグイン用のテーブルを新規作成
 	private function newTable(){
 
+		global $wpdb;
 		// バージョン情報を保存
 		update_option(PLUGIN_VERSION_NAME, PLUGIN_VERSION);
 		update_option(PLUGIN_TABLE_VERSION_NAME, PLUGIN_TABLE_VERSION);
-
 		// テーブルを作成
 		/*
 		*  data_id データid、 user_id WPの登録ユーザid、 text テキスト、 status 状態 0=削除　1=実働時間　2＝予定時間　3＝休み、
