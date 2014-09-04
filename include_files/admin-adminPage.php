@@ -11,10 +11,12 @@ $admin_page_view=<<<_EOD_
 			</div>
 			<h2>使用方法</h2>
 			<div>
-				<p>記事内に次のコードを埋め込みます。 <input type="text" value="[attendance]" /></p>
+				<p>記事内に次のショートコードを埋め込みます。 <input type="text" value="[attendance]" readonly="readonly" /></p>
 				<p>
-				uid=1とユーザIDを指定するとそのユーザだけの勤怠表示できます。 例：<input type="text" value="[attendance uid=1]" /><br />
+				uid=1とユーザIDを指定するとそのユーザだけの勤怠表示できます。 例：<input type="text" value="[attendance uid=1]" readonly="readonly" /><br />
 				該当ユーザがいない場合は表示されません。</p>
+				<p>
+				day=2014-08-31と年月日を指定するとその年月日からの勤怠表示します。 例：<input type="text" value="[attendance day=2014-08-31]" readonly="readonly" /><br />
 			</div>
 			<h2>更新履歴</h2>
 			<div>

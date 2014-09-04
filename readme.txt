@@ -3,7 +3,7 @@ Contributors: olivesystem
 Tags: plugin,admin
 Requires at least: 2.8
 Tested up to: 3.9
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 == Screenshots ==
 
 == Changelog ==
+
+= 1.0.5 =
+* 2014-09-04  軽微な修正
 
 = 1.0.4 =
 * 2014-09-04  使用方法の追加、軽微な修正
