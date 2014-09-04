@@ -3,12 +3,12 @@
 Plugin Name: 出勤・勤怠管理プラグイン
 Plugin URI: http://olivesystem.jp/lp/plugin-am
 Description: WordPressで出勤（勤怠）管理ができるプラグインです
-Version: 1.0.3
+Version: 1.0.4
 Author: OLIVESYSTEM（オリーブシステム）
 Author URI: http://www.olivesystem.com/
 */
 // 現在のプラグインバージョン
-define('PLUGIN_VERSION','1.0.3');
+define('PLUGIN_VERSION','1.0.4');
 // 現在のテーブルバージョン
 define('PLUGIN_TABLE_VERSION','1.0');
 // DBにデータを保存する項目名

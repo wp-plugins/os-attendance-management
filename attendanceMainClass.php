@@ -172,6 +172,16 @@ class AttendanceMain extends AttendanceClass {
 
 			$view = "<div class=\"schedule\">".$view."</div>";
 
+			if(isset($plugin_option_data['license'])){
+				$license = $plugin_option_data['license'];
+			}else{
+				$license = 'free';
+			}
+
+			if(!stristr($license, "os-am")){
+				$view .= '<div style="font-size:11px;"><a href="http://olivesystem.jp/lp/plugin-am" rel="nofollow">出勤・勤怠管理プラグイン</a></div>';
+			}
+
 		}
 
 		return $content.$view;
