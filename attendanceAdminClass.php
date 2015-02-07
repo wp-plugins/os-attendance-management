@@ -59,14 +59,14 @@ class AttendanceAdmin extends AttendanceClass {
 			}
 
 			// メニュー表示
-			add_menu_page('出勤・勤怠プラグイン', '出勤・勤怠プラグイン', 'author', 'attendance-management-view.php', array('AttendanceAdmin', 'adminPage'));
-			add_submenu_page('attendance-management-view.php', '出勤・勤怠管理の基本設定', '基本設定', 'author', 'attendance-management-options.php', array('AttendanceAdmin', 'optionPage'));
-			add_submenu_page('attendance-management-view.php', '出勤・勤怠の一覧', '出勤・勤怠の一覧', 'author', 'attendance-management-list.php', array('AttendanceAdmin', 'listPage'));
-			add_submenu_page('attendance-management-view.php', '出勤・勤怠の新規作成', '出勤・勤怠の新規作成', 'author', 'attendance-management-post.php', array('AttendanceAdmin', 'postPage'));
+			add_menu_page('出勤・勤怠プラグイン', '出勤・勤怠プラグイン', 8, 'attendance-management-view.php', array('AttendanceAdmin', 'adminPage'));
+			add_submenu_page('attendance-management-view.php', '出勤・勤怠管理の基本設定', '基本設定', 8, 'attendance-management-options.php', array('AttendanceAdmin', 'optionPage'));
+			add_submenu_page('attendance-management-view.php', '出勤・勤怠の一覧', '出勤・勤怠の一覧', 8, 'attendance-management-list.php', array('AttendanceAdmin', 'listPage'));
+			add_submenu_page('attendance-management-view.php', '出勤・勤怠の新規作成', '出勤・勤怠の新規作成', 8, 'attendance-management-post.php', array('AttendanceAdmin', 'postPage'));
 			// メニューに非表示するページ
-			add_submenu_page('attendance-management-list.php', '出勤・勤怠の編集', null, 'author', 'attendance-management-write.php', array('AttendanceAdmin', 'writePage'));
-			add_submenu_page('attendance-management-options.php', 'プラグインの初期化', null, 'author', 'attendance-management-format.php', array('AttendanceAdmin', 'formatPage'));
-			add_submenu_page('attendance-management-options.php', '利用規約', null, 'author', 'attendance-management-agreement.php', array('AttendanceAdmin', 'agreementPage'));
+			add_submenu_page('attendance-management-list.php', '出勤・勤怠の編集', null, 8, 'attendance-management-write.php', array('AttendanceAdmin', 'writePage'));
+			add_submenu_page('attendance-management-options.php', 'プラグインの初期化', null, 8, 'attendance-management-format.php', array('AttendanceAdmin', 'formatPage'));
+			add_submenu_page('attendance-management-options.php', '利用規約', null, 8, 'attendance-management-agreement.php', array('AttendanceAdmin', 'agreementPage'));
 
 		}
 
