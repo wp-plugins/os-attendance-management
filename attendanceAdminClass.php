@@ -407,51 +407,53 @@ class AttendanceAdmin extends AttendanceClass {
 
 		}else{
 
-			if(stristr($_GET['page'], "attendance-management") || stristr($_POST['page'], "attendance-management")){
+			if(isset($_GET) && isset($_GET['page'])){
+				if(stristr($_GET['page'], "attendance-management") || stristr($_POST['page'], "attendance-management")){
 
-				if($plugin_user_data['level']=='administrator'){
-					$insert_url = 'attendance-management-post.php';
-					$update_url = 'attendance-management-write.php';
-				}else{
-					$insert_url = 'attendance-management-user-post.php';
-					$update_url = 'attendance-management-user-write.php';
+					if($plugin_user_data['level']=='administrator'){
+						$insert_url = 'attendance-management-post.php';
+						$update_url = 'attendance-management-write.php';
+					}else{
+						$insert_url = 'attendance-management-user-post.php';
+						$update_url = 'attendance-management-user-write.php';
+					}
+
+					if(!empty($_POST['new'])){
+						$insert_id = self::post_insert();
+						// リダイレクト処理
+						if(!empty($insert_id)){
+							wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ok');
+							exit;
+						}else{
+							wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ng');
+							exit;
+						}
+
+					}elseif(!empty($_POST['Delete'])){
+						$delete_id = self::post_delete();
+						// リダイレクト処理
+						if(!empty($delete_id)){
+							wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ok');
+							exit;
+						}else{
+							wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ng');
+							exit;
+						}
+					}elseif(!empty($_POST['write'])){
+						$update_id = self::post_write();
+						// リダイレクト処理
+						if(!empty($update_id)){
+							wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&did='.$update_id.'&msg=write-ok');
+							exit;
+						}else{
+							wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&msg=write-ng');
+							exit;
+						}
+					}elseif(!empty($_POST['list_search']) || !empty($_POST['search_back_month']) || !empty($_POST['search_now_month']) || !empty($_POST['search_next_month'])){
+						self::list_search_redirect();
+					}
+
 				}
-
-				if(!empty($_POST['new'])){
-					$insert_id = self::post_insert();
-					// リダイレクト処理
-					if(!empty($insert_id)){
-						wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ok');
-						exit;
-					}else{
-						wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ng');
-						exit;
-					}
-
-				}elseif(!empty($_POST['Delete'])){
-					$delete_id = self::post_delete();
-					// リダイレクト処理
-					if(!empty($delete_id)){
-						wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ok');
-						exit;
-					}else{
-						wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ng');
-						exit;
-					}
-				}elseif(!empty($_POST['write'])){
-					$update_id = self::post_write();
-					// リダイレクト処理
-					if(!empty($update_id)){
-						wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&did='.$update_id.'&msg=write-ok');
-						exit;
-					}else{
-						wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&msg=write-ng');
-						exit;
-					}
-				}elseif(!empty($_POST['list_search']) || !empty($_POST['search_back_month']) || !empty($_POST['search_now_month']) || !empty($_POST['search_next_month'])){
-					self::list_search_redirect();
-				}
-
 			}
 
 		}
