@@ -1,7 +1,8 @@
 <?php
 if(class_exists('AttendanceAdmin')){
-$admin_page_view=<<<_EOD_
+?>
 	<div id="attendance-plugin">
+		<?php include_once(PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="wrap">
 			<h2>利用規約</h2>
 			<div>
@@ -38,8 +39,6 @@ $admin_page_view=<<<_EOD_
 		</div>
 	</div>
 
-_EOD_
-;
-echo $admin_page_view;
+<?php
 }
 ?>

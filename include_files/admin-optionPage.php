@@ -2,6 +2,13 @@
 if(class_exists('AttendanceAdmin')){
 $admin_page_view=<<<_EOD_
 	<div id="attendance-plugin">
+_EOD_
+;
+echo $admin_page_view;
+?>
+		<?php include_once(PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+<?php
+$admin_page_view=<<<_EOD_
 		<div class="wrap">
 			<h2>出勤・勤怠管理の基本設定</h2>
 			<p style="color:red;">{$message}</p>

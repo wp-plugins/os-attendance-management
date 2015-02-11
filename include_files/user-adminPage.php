@@ -1,6 +1,6 @@
 <?php
 if(class_exists('AttendanceUser') || class_exists('AttendanceAdmin')){
-$admin_page_view=<<<_EOD_
+?>
 	<div id="attendance-plugin">
 		<div class="wrap">
 			<h2>はじめに</h2>
@@ -12,8 +12,6 @@ $admin_page_view=<<<_EOD_
 		</div>
 	</div>
 
-_EOD_
-;
-echo $admin_page_view;
+<?php
 }
 ?>
