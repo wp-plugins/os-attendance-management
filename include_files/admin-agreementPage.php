@@ -29,8 +29,8 @@ if(class_exists('AttendanceAdmin')){
 				<h3>免責事項</h3>
 				<p>当プラグインは、予告なく変更・更新停止することがあります。<br />ユーザ間の紛争や損害が生じた場合は、自己解決するものとし、当方は関与致しません。 </p>
 				<h3>その他の連絡事項</h3>
-				<p>プラグインの著作権リンク表示を削除したい場合は有料となります。詳しくは当方の<a href="http://olivesystem.jp/lp/plugin-am-copyright" title="" target="_blank">ウェブサイト</a>でご確認願います。</p>
-				<p>ご連絡は<a href="http://olivesystem.jp/lp/plugin-am-mail" title="問い合わせ" target="_blank">問い合わせフォーム</a>からお願い致します。</p>
+				<p>プラグインの著作権リンク表示を削除したい場合は有料となります。詳しくは当方の<a href="http://lp.olivesystem.jp/plugin-am-copyright" title="" target="_blank">ウェブサイト</a>でご確認願います。</p>
+				<p>ご連絡は<a href="http://lp.olivesystem.jp/plugin-am-mail" title="問い合わせ" target="_blank">問い合わせフォーム</a>からお願い致します。</p>
 				<h3>管轄裁判所について</h3>
 				<p>本利用規約の解釈及び適用は、日本法に従うものとします。<br />当方とユーザー間で紛争が生じた場合に、紛争について調停を申し立てるときは、東京簡易裁判所又は東京地方裁判所をもって、調停を申し立てる裁判所とします。<br />当方とユーザー間で紛争が生じた場合に、訴訟を提起するときは、東京簡易裁判所又は東京地方裁判所を専属的な管轄裁判所とします。</p>
 				<p>平成二十五年九月二十日　制定</p>
