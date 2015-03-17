@@ -49,11 +49,13 @@ class AttendanceAdmin extends AttendanceClass {
 
 			// POST処理
 			if(isset($_GET) && isset($_GET['page'])){
-				if(stristr($_GET['page'], "attendance-management") || stristr($_POST['page'], "attendance-management")){
-					if(isset($_POST['format'])){
-						self::formatPlugin();
-					}elseif(isset($_POST['option'])){
-						self::optionPost();
+				if(isset($_POST)){
+					if(stristr($_GET['page'], "attendance-management") || (isset($_POST['page']) && stristr($_POST['page'], "attendance-management"))){
+						if(isset($_POST['format'])){
+							self::formatPlugin();
+						}elseif(isset($_POST['option'])){
+							self::optionPost();
+						}
 					}
 				}
 			}
