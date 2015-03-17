@@ -3,7 +3,7 @@ if(class_exists('AttendanceAdmin')){
 ?>
 
 	<div id="attendance-plugin">
-		<?php include_once(PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+		<?php include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="wrap">
 			<h2>はじめに</h2>
 			<div>
@@ -12,8 +12,19 @@ if(class_exists('AttendanceAdmin')){
 				<p>初めてご利用の方は、まず<a href="?page=attendance-management-format.php">初期化</a>してください。</p>
 				<p>ご連絡は<a href="http://lp.olivesystem.jp/plugin-am-mail" title="問い合わせ" target="_blank">問い合わせフォーム</a>からお願い致します。</p>
 			</div>
+			<h2>使い方</h2>
+			<div>
+				<p>[attendance] というショートコードで記事内に表示できます。</p>
+				<p>詳しくは<a href="admin.php?page=attendance-management-help.php">ヘルプページ</a>をご覧ください</p>
+			</div>
 			<h2>更新履歴</h2>
 			<div>
+				<p>2015-03-17  各箇所の修正、ヘルプページ追加</p>
+				<p>2015-03-09  軽微な修正</p>
+				<p>2015-02-11  軽微な修正</p>
+				<p>2015-02-07  軽微な修正</p>
+				<p>2015-02-07  軽微な修正</p>
+				<p>2014-07-17  軽微な修正</p>
 				<p>2014.07.18  バグの修正</p>
 				<p>2013.11.29  バグの修正</p>
 			</div>

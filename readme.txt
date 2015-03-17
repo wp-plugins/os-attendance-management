@@ -24,6 +24,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 == Changelog ==
 
+= 1.1.0 =
+* 2015-03-17  各箇所の修正、ヘルプページ追加
+
 = 1.0.65 =
 * 2015-03-09  軽微な修正
 

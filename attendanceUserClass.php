@@ -29,7 +29,7 @@ class AttendanceUser extends AttendanceClass {
 	// Page はじめに
 	public function adminPage(){
 
-		include_once(PLUGIN_INCLUDE_FILES.'/user-adminPage.php');
+		include_once(OSAM_PLUGIN_INCLUDE_FILES.'/user-adminPage.php');
 
 	}
 	// Page　出勤・勤怠の新規作成
@@ -62,7 +62,7 @@ class AttendanceUser extends AttendanceClass {
 		$form_message = $data['message'];
 		$break_selected = $data['break_selected'];
 		$over_selected = $data['over_selected'];
-		include_once(PLUGIN_INCLUDE_FILES."/user-writePage.php");
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/user-writePage.php");
 
 	}
 	/*

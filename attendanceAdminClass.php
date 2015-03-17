@@ -6,12 +6,12 @@ class AttendanceAdmin extends AttendanceClass {
 		parent::__construct();
 		// プラグインを有効化したとき
 		if(function_exists('register_activation_hook')){
-			//register_activation_hook('attendance-management', array('AttendanceAdmin', 'activationPlugin'));
+			register_activation_hook('attendance-management', array('AttendanceAdmin', 'activationPlugin'));
 		}
 		// まず実行
 		add_action('admin_init', array('AttendanceAdmin', 'actionAdminInit'));
 		// 管理画面メニュー
-		add_action('admin_menu', array('AttendanceAdmin', 'menuViews'));
+		@add_action('admin_menu', array('AttendanceAdmin', 'menuViews'));
 
 	}
 	// プラグインメニュー
@@ -21,12 +21,12 @@ class AttendanceAdmin extends AttendanceClass {
 		global $plugin_user_data; // ユーザデータ
 
 		// POST処理
-		add_action('admin_init', self::admin_post());
+		@add_action('admin_init', self::admin_post());
 		// CSS
 		add_action('admin_init', array('AttendanceClass', 'admin_css_read'));
 
 		// ゲストは管理画面を表示させない。トップページへ
-		if($plugin_user_data['level']=='guest'){
+		if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='guest'){
 
 			wp_safe_redirect(home_url('/'));
 			exit;
@@ -63,6 +63,7 @@ class AttendanceAdmin extends AttendanceClass {
 			add_submenu_page('attendance-management-view.php', '出勤・勤怠管理の基本設定', '基本設定', 'administrator', 'attendance-management-options.php', array('AttendanceAdmin', 'optionPage'));
 			add_submenu_page('attendance-management-view.php', '出勤・勤怠の一覧', '出勤・勤怠の一覧', 'administrator', 'attendance-management-list.php', array('AttendanceAdmin', 'listPage'));
 			add_submenu_page('attendance-management-view.php', '出勤・勤怠の新規作成', '出勤・勤怠の新規作成', 'administrator', 'attendance-management-post.php', array('AttendanceAdmin', 'postPage'));
+			add_submenu_page('attendance-management-view.php', 'ヘルプページ', 'ヘルプページ', 'administrator', 'attendance-management-help.php', array('AttendanceAdmin', 'helpPage'));
 			// メニューに非表示するページ
 			add_submenu_page('attendance-management-list.php', '出勤・勤怠の編集', null, 'administrator', 'attendance-management-write.php', array('AttendanceAdmin', 'writePage'));
 			add_submenu_page('attendance-management-options.php', 'プラグインの初期化', null, 'administrator', 'attendance-management-format.php', array('AttendanceAdmin', 'formatPage'));
@@ -77,7 +78,7 @@ class AttendanceAdmin extends AttendanceClass {
 	// Page はじめに
 	public function adminPage(){
 
-		include_once(PLUGIN_INCLUDE_FILES."/admin-adminPage.php");
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-adminPage.php");
 
 	}
 	// Page 基本設定
@@ -91,7 +92,7 @@ class AttendanceAdmin extends AttendanceClass {
 		$admin_list_checked = parent::html_array_check($data['admin-list'], '4', array('1', '2', '3', 'm'));
 		$clock_checked = parent::html_array_check($data['clock'], '2', array('0', '1'));
 
-		include_once(PLUGIN_INCLUDE_FILES."/admin-optionPage.php");
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-optionPage.php");
 
 	}
 	// Page　出勤・勤怠の新規作成
@@ -101,6 +102,12 @@ class AttendanceAdmin extends AttendanceClass {
 		$users = self::getMember();
 		$message = self::updateMessage();
 		self::_postPage($message, $users);
+
+	}
+	// Page　ヘルプページ
+	public function helpPage(){
+
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-helpPage.php");
 
 	}
 	// Page　出勤・勤怠の一覧
@@ -123,19 +130,19 @@ class AttendanceAdmin extends AttendanceClass {
 		$form_message = $data['message'];
 		$break_selected = $data['break_selected'];
 		$over_selected = $data['over_selected'];
-		include_once(PLUGIN_INCLUDE_FILES."/user-writePage.php");
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/user-writePage.php");
 
 	}
 	// Page 利用規約
 	public function agreementPage(){
 
-		include_once(PLUGIN_INCLUDE_FILES."/admin-agreementPage.php");
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-agreementPage.php");
 
 	}
 	// Page　初期化するかどうか確認するページ
 	public function formatPage(){
 
-		include_once(PLUGIN_INCLUDE_FILES."/admin-formatPage.php");
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-formatPage.php");
 
 	}
 	/*
@@ -144,27 +151,10 @@ class AttendanceAdmin extends AttendanceClass {
 	// プラグインが有効化されたときに実行する
 	public function activationPlugin(){
 
-		// 過去にに有効化されている場合
-		if(get_option(PLUGIN_TABLE_VERSION_NAME)){
-
-			$old_pluginVersion = get_option(PLUGIN_TABLE_VERSION_NAME);
-			// バージョンの小数点以下を切捨て
-			$old_pluginVersion = floor($old_pluginVersion);
-			$new_pluginVersion = floor(PLUGIN_TABLE_VERSION);
-
-			// 過去の有効にしたバージョンと現バージョンのテーブル構造が違う場合、新規にテーブルを作成
-			// テーブル構造を変えるたびに、バージョンを1.0=>2.0と変えていく予定
-			if($old_pluginVersion!=$new_pluginVersion){
-
-				self::newTable();
-
-			}
-
-		// 初めて有効化した場合
-		}else{
-
+		// テーブルが存在するか確認
+		$table_exists = self::show_table(OSAM_PLUGIN_TABLE_NAME);
+		if(!$table_exists){
 			self::newTable();
-
 		}
 
 	}
@@ -172,12 +162,10 @@ class AttendanceAdmin extends AttendanceClass {
 	private function firstOption(){
 
 		// 設定を初期化
-		update_option(PLUGIN_VERSION_NAME, PLUGIN_VERSION);
-		update_option(PLUGIN_TABLE_VERSION_NAME, PLUGIN_TABLE_VERSION);
 		$arr = array(
 				'time_view' => '0', 'time_write' => 'admin', 'license' => 'free', 'view-list' => '1', 'admin-list' => '2', 'clock'=>'1',
 			);
-		update_option(PLUGIN_DATA_NAME, $arr);
+		update_option(OSAM_PLUGIN_DATA_NAME, $arr);
 
 	}
 	/*
@@ -186,14 +174,13 @@ class AttendanceAdmin extends AttendanceClass {
 	// プラグインが初期化されたときに実行する
 	private function formatPlugin(){
 
-		delete_option(PLUGIN_DATA_NAME);
-		global $wpdb;
+		delete_option(OSAM_PLUGIN_DATA_NAME);
 		// テーブルが存在するか確認
-		$table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", PLUGIN_TABLE_NAME));
+		$table_exists = self::show_table(OSAM_PLUGIN_TABLE_NAME);
 		// テーブルが存在すればデータ削除、なければテーブルを新規作成
 		if($table_exists){
 
-			$sql = "DELETE FROM ".PLUGIN_TABLE_NAME.";";
+			$sql = "DELETE FROM ".OSAM_PLUGIN_TABLE_NAME.";";
 			self::sql_query($sql);
 
 		}else{
@@ -205,7 +192,7 @@ class AttendanceAdmin extends AttendanceClass {
 		self::firstOption();
 
 		// リダイレクト
-		if(get_option(PLUGIN_DATA_NAME)){
+		if(get_option(OSAM_PLUGIN_DATA_NAME)){
 			wp_safe_redirect(admin_url('/').'admin.php?page=attendance-management-options.php&msg=format-ok');
 			exit;
 		}else{
@@ -222,9 +209,9 @@ class AttendanceAdmin extends AttendanceClass {
 		global $plugin_user_data;
 
 		// 管理者権限のときのみ実行
-		if($plugin_user_data['level']=='administrator'){
+		if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='administrator'){
 
-			if(isset($_GET['csv_dl'])){
+			if(isset($_GET) && isset($_GET['csv_dl'])){
 				self::csv_export();
 			}
 
@@ -238,29 +225,31 @@ class AttendanceAdmin extends AttendanceClass {
 	private function csv_export(){
 
 		// データ取得
-		$data_arr = self::get_list_sql($_GET);
-		$now = date("Y-m-d", time()); // 現在時刻
-		$csv_word = str_replace(array(": ", " / ", " ", "～"), array("", "_", "_", "から"), $data_arr['word']); // ファイル名に使用
+		if(isset($_GET) && isset($_GET['csv_dl'])){
+			$data_arr = self::get_list_sql($_GET);
+			$now = date("Y-m-d", time()); // 現在時刻
+			$csv_word = str_replace(array(": ", " / ", " ", "～"), array("", "_", "_", "から"), $data_arr['word']); // ファイル名に使用
 
-		switch($_GET['csv_dl']){
-			case '1':
-				$csv_file = "勤怠一覧_".$now."_".$csv_word.'.csv';
-				$csv_data = self::csv_data($data_arr['data']);
-				break;
-			case '2':
-				$csv_file = "勤怠合計_".$now."_".$csv_word.'.csv';
-				$csv_data = self::csv_data_total($data_arr['data']);
-				break;
+			switch($_GET['csv_dl']){
+				case '1':
+					$csv_file = "勤怠一覧_".$now."_".$csv_word.'.csv';
+					$csv_data = self::csv_data($data_arr['data']);
+					break;
+				case '2':
+					$csv_file = "勤怠合計_".$now."_".$csv_word.'.csv';
+					$csv_data = self::csv_data_total($data_arr['data']);
+					break;
+			}
+
+			// エンコード
+			$csv_data = mb_convert_encoding($csv_data, "sjis-win", 'UTF-8');
+			// ヘッダー
+			header("Content-Type: application/octet-stream");
+			header("Content-Disposition: attachment; filename={$csv_file}");
+			// データの出力
+			echo($csv_data);
+			exit();
 		}
-
-		// エンコード
-		$csv_data = mb_convert_encoding($csv_data, "sjis-win", 'UTF-8');
-		// ヘッダー
-		header("Content-Type: application/octet-stream");
-		header("Content-Disposition: attachment; filename={$csv_file}");
-		// データの出力
-		echo($csv_data);
-		exit();
 
 	}
 	// CSVデータ生成(一覧)
@@ -370,21 +359,23 @@ class AttendanceAdmin extends AttendanceClass {
 
 		$return_data = '';
 
-		switch($_GET['msg']){
+		if(isset($_GET) && isset($_GET['msg'])){
+			switch($_GET['msg']){
 
-			case "format-ok":
-				$return_data .= "初期化しました<br />";
-				break;
-			case "format-error":
-				$return_data .= "初期化に失敗しました<br />";
-				break;
-			case "ok":
-				$return_data .= "更新しました<br />";
-				break;
-			case "error":
-				$return_data .= "更新に失敗しました<br />";
-				break;
+				case "format-ok":
+					$return_data .= "初期化しました<br />";
+					break;
+				case "format-error":
+					$return_data .= "初期化に失敗しました<br />";
+					break;
+				case "ok":
+					$return_data .= "更新しました<br />";
+					break;
+				case "error":
+					$return_data .= "更新に失敗しました<br />";
+					break;
 
+			}
 		}
 
 		$return_data .= self::_updateMessage();
@@ -400,7 +391,7 @@ class AttendanceAdmin extends AttendanceClass {
 
 		global $plugin_user_data;
 
-		if($plugin_user_data['level']=='guest'){
+		if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='guest'){
 
 			wp_safe_redirect(home_url('/'));
 			exit;
@@ -410,7 +401,7 @@ class AttendanceAdmin extends AttendanceClass {
 			if(isset($_GET) && isset($_GET['page'])){
 				if(stristr($_GET['page'], "attendance-management") || stristr($_POST['page'], "attendance-management")){
 
-					if($plugin_user_data['level']=='administrator'){
+					if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='administrator'){
 						$insert_url = 'attendance-management-post.php';
 						$update_url = 'attendance-management-write.php';
 					}else{
@@ -469,10 +460,10 @@ class AttendanceAdmin extends AttendanceClass {
 	private function optionPost(){
 
 		$update_array = parent::arrayData($_POST);
-		update_option(PLUGIN_DATA_NAME, $update_array);
+		update_option(OSAM_PLUGIN_DATA_NAME, $update_array);
 
 		// リダイレクト
-		if(get_option(PLUGIN_DATA_NAME)){
+		if(get_option(OSAM_PLUGIN_DATA_NAME)){
 			wp_safe_redirect(admin_url('/').'admin.php?page=attendance-management-options.php&msg=ok');
 			exit;
 		}else{
@@ -484,13 +475,17 @@ class AttendanceAdmin extends AttendanceClass {
 	/*
 	*  SQL
 	*/
+	// テーブルの存在チェック
+	public function show_table($tbl){
+
+		global $wpdb;
+		return $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $tbl));
+
+	}
 	// バージョン情報を保存し、プラグイン用のテーブルを新規作成
 	private function newTable(){
 
 		global $wpdb;
-		// バージョン情報を保存
-		update_option(PLUGIN_VERSION_NAME, PLUGIN_VERSION);
-		update_option(PLUGIN_TABLE_VERSION_NAME, PLUGIN_TABLE_VERSION);
 		// テーブルを作成
 		/*
 		*  data_id データid、 user_id WPの登録ユーザid、 text テキスト、 status 状態 0=削除　1=実働時間　2＝予定時間　3＝休み、
@@ -500,7 +495,7 @@ class AttendanceAdmin extends AttendanceClass {
 		*  date 稼動する年月日、 create_time 作成日、 update_time 更新日、
 		*/
 		$charset = defined("DB_CHARSET") ? DB_CHARSET : "utf8";
-		$sql = "CREATE TABLE " .PLUGIN_TABLE_NAME. " (\n".
+		$sql = "CREATE TABLE " .OSAM_PLUGIN_TABLE_NAME. " (\n".
 				"`data_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,\n".
 				"`user_id` bigint(20) UNSIGNED DEFAULT '0' NOT NULL,\n".
 				"`text` text,\n".

@@ -5,9 +5,9 @@ class AttendanceMain extends AttendanceClass {
 
 		parent::__construct();
 		// CSS
-		add_action('plugins_loaded', self::public_css_read());
+		@add_action('plugins_loaded', self::public_css_read());
 		// 表示のショートコード
-		add_shortcode('attendance', array($this, 'viewMode'));
+		add_shortcode('attendance', array('AttendanceMain', 'viewMode'));
 
 	}
 	// ショートコードの処理
@@ -92,7 +92,7 @@ class AttendanceMain extends AttendanceClass {
 		$where .= " AND '".$st_time."' <= `date` AND `date` < '".$end_time."'";
 
 		// データ取得
-		$sql = "SELECT * FROM `".PLUGIN_TABLE_NAME."` WHERE ".$where." AND `status`='0' ORDER by `date` DESC";
+		$sql = "SELECT * FROM `".OSAM_PLUGIN_TABLE_NAME."` WHERE ".$where." AND `status`='0' ORDER by `date` DESC";
 		$data = self::sql_get($sql, $sql_arr);
 
 		if(!empty($data[0])){
@@ -114,7 +114,7 @@ class AttendanceMain extends AttendanceClass {
 				$date = explode(" ", $d->date);
 				$now_day = $date[0];
 
-				if($uid_count=='1'){
+				if(isset($uid_count) && $uid_count=='1'){
 					$view_html = '<div class="person">';
 				}else{
 					$view_html = '<div class="person"><p class="name">'.$name.'</p>';
@@ -200,7 +200,7 @@ class AttendanceMain extends AttendanceClass {
 	private function member_data(){
 
 		$data = array();
-		$users = get_users(array('orderby'=>ID,'order'=>$order));
+		$users = get_users(array('orderby'=>'ID'));
 
 		foreach($users as $u){
 

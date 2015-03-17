@@ -2,7 +2,7 @@
 if(class_exists('AttendanceAdmin')){
 ?>
 	<div id="attendance-plugin">
-		<?php include_once(PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+		<?php include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="wrap">
 			<h2>プラグインの初期化</h2>
 			<form action="admin.php?page=attendance-management-format.php" method="POST">

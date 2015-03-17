@@ -8,8 +8,8 @@ $user_page_view=<<<_EOD_
 			<p class="search-where">検索条件 => {$list_message}</p>
 			<form action="admin.php?page=attendance-management-list.php" method="POST" id="month-submit">
 				{$listHidden}
-				<input type="submit" name="search_back_month" value="先月" />　<input type="submit" name="search_now_month" value="今月" />　<input type="submit" name="search_next_month" value="来月" />　
-				CSVダウンロード：<a href="admin.php{$csv_link}&csv_dl=1" style="text-decoration:none;"><input type="button" name="csv_data" value="一覧データ" /></a>　<a href="admin.php{$csv_link}&csv_dl=2" style="text-decoration:none;"><input type="button" name="csv_data" value="合計データ" /></a>
+				<input type="submit" name="search_back_month" value="先月" class="s-click" />　<input type="submit" name="search_now_month" value="今月" class="s-click" />　<input type="submit" name="search_next_month" value="来月" class="s-click" />　
+				CSVダウンロード：<a href="admin.php{$csv_link}&csv_dl=1" style="text-decoration:none;"><input type="button" name="csv_data" value="一覧データ" class="s-click" /></a>　<a href="admin.php{$csv_link}&csv_dl=2" style="text-decoration:none;"><input type="button" name="csv_data" value="合計データ" class="s-click" /></a>
 			</form>
 			<table id="list">
 				{$list_html}

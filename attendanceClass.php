@@ -18,7 +18,7 @@ class AttendanceClass {
 	// オプション取得
 	public function plugin_get_option(){
 
-		$GLOBALS['plugin_option_data'] = get_option(PLUGIN_DATA_NAME);
+		$GLOBALS['plugin_option_data'] = get_option(OSAM_PLUGIN_DATA_NAME);
 
 	}
 	// ユーザデータ、権限の取得
@@ -31,16 +31,20 @@ class AttendanceClass {
 			get_currentuserinfo();
 			$arr = array();
 
-			foreach($current_user->data as $key => $user){
+			if(isset($current_user->data)){
+				foreach($current_user->data as $key => $user){
 
-				if($key!='user_pass' && $key!='user_activation_key'){
-					$arr[$key] = $user;
+					if($key!='user_pass' && $key!='user_activation_key'){
+						$arr[$key] = $user;
+					}
+
 				}
-
+				//
+				if(isset($current_user->roles) && isset($current_user->roles[0])){
+					$arr['level'] = $current_user->roles[0];
+				}
+				$GLOBALS['plugin_user_data'] = $arr;
 			}
-
-			$arr['level'] = $current_user->roles[0];
-			$GLOBALS['plugin_user_data'] = $arr;
 
 		}else{
 
@@ -52,10 +56,12 @@ class AttendanceClass {
 	// 管理画面用のCSSを割り当て
 	public function admin_css_read(){
 
-		add_action('wp_head', self::admin_css_action());
+		if(is_admin()){
+			self::admin_css_action();
+		}
 
 	}
-	private function admin_css_action(){
+	public function admin_css_action(){
 
 		$src = plugins_url('attendance-admin.css', __FILE__);
 		wp_register_style('attendance-admin', $src);
@@ -70,10 +76,10 @@ class AttendanceClass {
 
 		// 指定IDユーザのみ
 		if(!empty($id)){
-			$users = get_users(array('orderby'=>ID,'order'=>$order, 'include'=>$id));
+			$users = get_users(array('orderby'=>'ID','order'=>$order, 'include'=>$id));
 		// 全取得
 		}else{
-			$users = get_users(array('orderby'=>ID,'order'=>$order));
+			$users = get_users(array('orderby'=>'ID','order'=>$order));
 		}
 
 		foreach($users as $u){
@@ -125,7 +131,7 @@ class AttendanceClass {
 		$select_options[0] = self::this_month_view();
 		$select_options[1] = self::last_month_view();
 		$select_options[2] = self::next_month_view();
-		include_once(PLUGIN_INCLUDE_FILES."/user-postPage.php");
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/user-postPage.php");
 
 	}
 	// Page　出勤・勤怠の一覧
@@ -150,7 +156,7 @@ class AttendanceClass {
 			$form_url = 'attendance-management-user-list.php';
 		}
 
-		include_once(PLUGIN_INCLUDE_FILES."/user-listPage.php");
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/user-listPage.php");
 
 	}
 	/*
@@ -978,30 +984,32 @@ class AttendanceClass {
 
 		$return_data = '';
 
-		switch($_GET['msg']){
+		if(isset($_GET) && isset($_GET['msg'])){
+			switch($_GET['msg']){
 
-			case "insert-ok":
-				$return_data .= "新規作成しました<br />";
-				break;
-			case "insert-ng":
-				$return_data .= "新規作成に失敗しました<br />";
-				break;
-			case "write-ok":
-				$return_data .= "更新に成功しました<br />";
-				break;
-			case "write-ng":
-				$return_data .= "更新に失敗しました<br />";
-				break;
-			case "delete-ok":
-				$return_data .= "削除に成功しました<br />";
-				break;
-			case "delete-ng":
-				$return_data .= "削除に失敗しました<br />";
-				break;
-			case "write-user-ng":
-				$return_data .= "編集権限のないユーザです<br />";
-				break;
+				case "insert-ok":
+					$return_data .= "新規作成しました<br />";
+					break;
+				case "insert-ng":
+					$return_data .= "新規作成に失敗しました<br />";
+					break;
+				case "write-ok":
+					$return_data .= "更新に成功しました<br />";
+					break;
+				case "write-ng":
+					$return_data .= "更新に失敗しました<br />";
+					break;
+				case "delete-ok":
+					$return_data .= "削除に成功しました<br />";
+					break;
+				case "delete-ng":
+					$return_data .= "削除に失敗しました<br />";
+					break;
+				case "write-user-ng":
+					$return_data .= "編集権限のないユーザです<br />";
+					break;
 
+			}
 		}
 
 		return $return_data;
@@ -1071,7 +1079,7 @@ class AttendanceClass {
 		$now = date("Y-m-d H:i:s", time());
 		$cols = array('user_id', 'create_time', 'text', 'start_time', 'start_i_time', 'finish_time', 'finish_i_time', 'break_start_time', 'break_start_i_time', 'break_finish_time', 'break_finish_i_time', 'break_point', 'over_start_time', 'over_start_i_time', 'over_finish_time', 'over_finish_i_time', 'over_point', 'date');
 		$values = array('%d', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s');
-		$sql = self::sql_insert_txt(PLUGIN_TABLE_NAME, $cols, $values);
+		$sql = self::sql_insert_txt(OSAM_PLUGIN_TABLE_NAME, $cols, $values);
 		$date = $_POST['work_day']." 00:00:00";
 		$arr = array($_POST['id'], $now, $_POST['text'], $_POST['start_time'], $_POST['start_i_time'], $_POST['finish_time'], $_POST['finish_i_time'], $_POST['break_start_time'], $_POST['break_start_i_time'], $_POST['break_finish_time'], $_POST['break_finish_i_time'], $_POST['break_point'], $_POST['over_start_time'], $_POST['over_start_i_time'], $_POST['over_finish_time'], $_POST['over_finish_i_time'], $_POST['over_point'], $date);
 		$insert_id = self::sql_query($sql, $arr, 1);
@@ -1081,7 +1089,7 @@ class AttendanceClass {
 	// 管理画面での編集データの取得
 	public function get_id_data(){
 
-		$sql = "SELECT * FROM ".PLUGIN_TABLE_NAME." WHERE `data_id` = %d";
+		$sql = "SELECT * FROM ".OSAM_PLUGIN_TABLE_NAME." WHERE `data_id` = %d";
 		$arr = array($_GET['did']);
 		$data = self::sql_get($sql, $arr);
 		if(!empty($data[0]->user_id)){
@@ -1095,7 +1103,7 @@ class AttendanceClass {
 	private function update_post_write(){
 
 		$now = date("Y-m-d H:i:s", time());
-		$sql = 'UPDATE '.PLUGIN_TABLE_NAME.' SET `text` = %s, `start_time` = %d, `start_i_time` = %d, `finish_time` = %d, `finish_i_time` = %d, `break_start_time` = %d, `break_start_i_time` = %d, `break_finish_time` = %d, `break_finish_i_time` = %d, `break_point` = %d, `over_start_time` = %d, `over_start_i_time` = %d, `over_finish_time` = %d, `over_finish_i_time` = %d, `over_point` = %d, `update_time` = %s WHERE `user_id` = %d AND `data_id` = %d';
+		$sql = 'UPDATE '.OSAM_PLUGIN_TABLE_NAME.' SET `text` = %s, `start_time` = %d, `start_i_time` = %d, `finish_time` = %d, `finish_i_time` = %d, `break_start_time` = %d, `break_start_i_time` = %d, `break_finish_time` = %d, `break_finish_i_time` = %d, `break_point` = %d, `over_start_time` = %d, `over_start_i_time` = %d, `over_finish_time` = %d, `over_finish_i_time` = %d, `over_point` = %d, `update_time` = %s WHERE `user_id` = %d AND `data_id` = %d';
 		$arr = array($_POST['text'], $_POST['start_time'], $_POST['start_i_time'], $_POST['finish_time'], $_POST['finish_i_time'], $_POST['break_start_time'], $_POST['break_start_i_time'], $_POST['break_finish_time'], $_POST['break_finish_i_time'], $_POST['break_point'], $_POST['over_start_time'], $_POST['over_start_i_time'], $_POST['over_finish_time'], $_POST['over_finish_i_time'], $_POST['over_point'], $now, $_POST['id'], $_POST['did']);
 		$return_data = self::sql_query($sql, $arr);
 
@@ -1112,7 +1120,7 @@ class AttendanceClass {
 	private function update_post_delete(){
 
 		$now = date("Y-m-d H:i:s", time());
-		$sql = 'UPDATE '.PLUGIN_TABLE_NAME.' SET `status` = %d , `update_time` = %s WHERE `user_id` = %d AND `data_id` = %d';
+		$sql = 'UPDATE '.OSAM_PLUGIN_TABLE_NAME.' SET `status` = %d , `update_time` = %s WHERE `user_id` = %d AND `data_id` = %d';
 		$arr = array('1', $now, $_POST['id'], $_POST['did']);
 		$return_data = self::sql_query($sql, $arr);
 
@@ -1197,7 +1205,7 @@ class AttendanceClass {
 		$search_word .= self::bar_ymd(self::h($array['end_day']));
 
 		$where .= "`status`='0'";
-		$sql = self::sql_select_txt(PLUGIN_TABLE_NAME, '*', $where);
+		$sql = self::sql_select_txt(OSAM_PLUGIN_TABLE_NAME, '*', $where);
 		$result = self::sql_get($sql, $parameter);
 
 		return array('data'=>$result, 'word'=>$search_word);

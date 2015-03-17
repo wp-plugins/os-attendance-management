@@ -6,7 +6,7 @@ _EOD_
 ;
 echo $admin_page_view;
 ?>
-		<?php include_once(PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+		<?php include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 <?php
 $admin_page_view=<<<_EOD_
 		<div class="wrap">

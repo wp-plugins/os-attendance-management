@@ -1,7 +1,7 @@
 <?php
 if(class_exists('AttendanceUser') || class_exists('AttendanceAdmin')){
 
-	if($plugin_user_data['level']=='administrator'){
+	if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='administrator'){
 		$post_url = "admin.php?page=attendance-management-post.php";
 	}else{
 		$post_url = "admin.php?page=attendance-management-user-post.php";
