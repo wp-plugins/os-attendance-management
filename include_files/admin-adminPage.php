@@ -8,7 +8,7 @@ if(class_exists('AttendanceAdmin')){
 			<h2>はじめに</h2>
 			<div>
 				<p>出勤・勤怠管理プラグインを導入していただき、ありがとうございます。</p>
-				<p>当プラグインのご利用は非商用であれば無料です。再配布は許可しておりません。詳しくは、<a href="?page=attendance-management-agreement.php">こちらの利用規約</a>をご覧ください。</p>
+				<p>当プラグインのご利用は無料です。再配布は許可しておりません。詳しくは、<a href="?page=attendance-management-agreement.php">こちらの利用規約</a>をご覧ください。</p>
 				<p>初めてご利用の方は、まず<a href="?page=attendance-management-format.php">初期化</a>してください。</p>
 				<p>ご連絡は<a href="http://lp.olivesystem.jp/plugin-am-mail" title="問い合わせ" target="_blank">問い合わせフォーム</a>からお願い致します。</p>
 			</div>
@@ -16,6 +16,11 @@ if(class_exists('AttendanceAdmin')){
 			<div>
 				<p>[attendance] というショートコードで記事内に表示できます。</p>
 				<p>詳しくは<a href="admin.php?page=attendance-management-help.php">ヘルプページ</a>をご覧ください</p>
+			</div>
+			<h2>注意</h2>
+			<div>
+				<p>当プラグインを改造して有料販売している業者がいますが、当方とは無関係です。</p>
+				<p>危険性がありますので、<a href="https://wordpress.org/plugins/" target="_blank">WordPress公式サイト</a>に登録されていないものはお勧めしません。自己責任でご利用ください。</p>
 			</div>
 			<h2>更新履歴</h2>
 			<div>
