@@ -18,8 +18,36 @@ class AttendanceClass {
 	// オプション取得
 	public function plugin_get_option(){
 
-		$GLOBALS['plugin_option_data'] = get_option(OSAM_PLUGIN_DATA_NAME);
+		$options = get_option(OSAM_PLUGIN_DATA_NAME);
+		// 一覧及びCSV出力のデフォルト設定配列
+		$list_arr = self::options_list_arr();
+		// 格納
+		for($i=0; $i<2; $i++){
+			switch($i){
+				case 1:
+					$str = 'csv';
+					break;
+				default:
+					$str = 'list';
+			}
+			//
+			if(isset($options[$str])){
+				foreach($list_arr as $key => $ar){
+					if(!isset($options[$str][$key])){
+						$options[$str][$key] = $ar;
+					}
+				}
+			}else{
+				$options[$str] = $list_arr;
+			}
+		}
+		//
+		$GLOBALS['plugin_option_data'] = $options;
 
+	}
+	//
+	public function options_list_arr(){
+		return array('work_start'=>1, 'work_end'=>1, 'work_time'=>0, 'break_start'=>1, 'break_end'=>1, 'break_time'=>0, 'overtime_start'=>1, 'overtime_end'=>1, 'overtime_time'=>0, 'daywork'=>0, 'total'=>1, 'all_total'=>1, 'message'=>1);
 	}
 	// ユーザデータ、権限の取得
 	public function action_level(){
@@ -104,11 +132,20 @@ class AttendanceClass {
 	public function arrayData($data=''){
 
 		$arr = array();
-
+		$options_list = self::options_list_arr();
+		//
 		foreach($data as $key => $d){
 
 			if($key=='Submit' || $key=='submit'){
 
+			}elseif($key=='list' || $key=='csv'){
+				foreach($options_list as $str => $op){
+					if(isset($data[$key][$str])){
+						$arr[$key][$str] = self::sql_escape($data[$key][$str]);
+					}else{
+						$arr[$key][$str] = 0;
+					}
+				}
 			}elseif($key=='time_view'){
 				$arr[$key] = self::sql_escape($d, 1);
 			}else{
@@ -286,12 +323,12 @@ class AttendanceClass {
 		$wdate = explode(" ", $data->date);
 		$work_date = explode("-", $wdate[0]);
 		$return_array['data'] = $data;
-		if(empty($user_data[nickname])){
+		if(empty($user_data['nickname'])){
 			$nickname = '';
 		}else{
-			$nickname = '('.$user_data[nickname].')';
+			$nickname = '('.$user_data['nickname'].')';
 		}
-		$return_array['user_form'] = $user_data[name].$nickname.'<input type="hidden" name="id" value="'.$uid.'" /><input type="hidden" name="did" value="'.$data->data_id.'" />';
+		$return_array['user_form'] = $user_data['name'].$nickname.'<input type="hidden" name="id" value="'.$uid.'" /><input type="hidden" name="did" value="'.$data->data_id.'" />';
 		$return_array['form_arr'] = array(
 			'0'=>$data->start_time, '1'=>$data->start_i_time, '2'=>$data->finish_time, '3'=>$data->finish_i_time, '4'=>$data->break_start_time, '5'=>$data->break_start_i_time, '6'=>$data->break_finish_time, '7'=>$data->break_finish_i_time,
 		);
@@ -323,6 +360,7 @@ class AttendanceClass {
 		$html = '';
 		global $plugin_user_data;
 		global $plugin_option_data;
+		$options = $plugin_option_data;
 
 		// データがあれば実行
 		if(!empty($data[0])){
@@ -338,10 +376,25 @@ class AttendanceClass {
 				$user_html = '';
 			}
 
-			$html .="<th>ID</th>{$user_html}<th>勤務日</th><th>開始時間</th><th>終了時間</th><th>休憩開始</th><th>休憩終了</th><th>残業開始</th><th>残業終了</th><th>メッセージ</th><th class=\"right\"></th>";
-
+			$options_list = (isset($options['list'])) ? $options['list'] : '';
+			$html .= "<th>ID</th>{$user_html}<th>勤務日</th>";
+			// 業務
+			if(!empty($options_list['work_start'])){ $html .= "<th>開始時刻</th>"; }
+			if(!empty($options_list['work_end'])){ $html .= "<th>終了時刻</th>"; }
+			if(!empty($options_list['work_time'])){ $html .= "<th>業務時間</th>"; }
+			// 休憩
+			if(!empty($options_list['break_start'])){ $html .= "<th>休憩開始</th>"; }
+			if(!empty($options_list['break_end'])){ $html .= "<th>休憩終了</th>"; }
+			if(!empty($options_list['break_time'])){ $html .= "<th>休憩時間</th>"; }
+			// 残業
+			if(!empty($options_list['overtime_start'])){ $html .= "<th>残業開始</th>"; }
+			if(!empty($options_list['overtime_end'])){ $html .= "<th>残業終了</th>"; }
+			if(!empty($options_list['overtime_time'])){ $html .= "<th>残業時間</th>"; }
+			// etc
+			if(!empty($options_list['daywork'])){ $html .= "<th>実働時間</th>"; }
+			if(!empty($options_list['message'])){ $html .= "<th>メッセージ</th>"; }
+			$html .= "<th class=\"right\"></th>";
 			$cl = self::clockText($plugin_option_data['clock']);
-
 			$user_arr = array();
 			$total_time = 0;
 			$break_total_time = 0;
@@ -372,6 +425,7 @@ class AttendanceClass {
 				$week_name = self::dayOfTheWeek(date("N", strtotime($data[$key]->date)));
 				$work_start = $data[$key]->start_time.$cl[0].$data[$key]->start_i_time.$cl[1];
 				$work_end= $data[$key]->finish_time.$cl[0].$data[$key]->finish_i_time.$cl[1];
+				$work_time = self::time_plus(0, $work_hi);
 				// 休憩時間
 				if(!empty($data[$key]->break_point)){
 					$break_start = $data[$key]->break_start_time.$cl[0].$data[$key]->break_start_i_time.$cl[1];
@@ -389,6 +443,7 @@ class AttendanceClass {
 				$break_hi = self::time_minus($break_finish_hi_time, $break_start_hi_time);
 				$user_arr[$uid]['break'] = self::time_plus($user_arr[$uid]['break'], $break_hi); // 個別
 				$break_total_time = self::time_plus($break_total_time, $break_hi); // 総数
+				$break_time = self::time_plus(0, $break_hi);
 				// 残業時間
 				if(!empty($data[$key]->over_point)){
 					$over_start = $data[$key]->over_start_time.$cl[0].$data[$key]->over_start_i_time.$cl[1];
@@ -402,27 +457,91 @@ class AttendanceClass {
 					$over_start_hi_time = '00:00';
 					$over_finish_hi_time = '00:00';
 				}
-				// 休憩時間の加算
+				// 残業時間の加算
 				$over_hi = self::time_minus($over_finish_hi_time, $over_start_hi_time);
 				$user_arr[$uid]['over'] = self::time_plus($user_arr[$uid]['over'], $over_hi); // 個別
 				$over_total_time = self::time_plus($over_total_time, $over_hi); // 総数
+				$overtime_time = self::time_plus(0, $over_hi);
 				// tr td
 				if($plugin_user_data['level']!='administrator'){
 					$user_html = '';
 				}
-				$html .= "<tr><td>".$data[$key]->data_id."</td>{$user_html}<td>".$work_day.$week_name[2]."</td><td class=\"center\">{$work_start}</td><td class=\"center\">{$work_end}</td><td class=\"center\">{$break_start}</td><td class=\"center\">{$break_end}</td><td class=\"center\">{$over_start}</td><td class=\"center\">{$over_end}</td><td>".self::h($data[$key]->text)."</td><td><a href=\"".admin_url('/')."admin.php?page=".$url."&did=".$data[$key]->data_id."\" title=\"ID".$data[$key]->data_id."を編集\">編集</a></td></tr>";
+				//
+				$work_colspan = 0;
+				$break_colspan = 0;
+				$overtime_colspan = 0;
+				$daywork_colspan = 2;
+				//
+				$html .= "<tr><td>".$data[$key]->data_id."</td>{$user_html}<td>".$work_day.$week_name[2]."</td>";
+				if(!empty($options_list['work_start'])){
+					$html .= "<td class=\"center\">{$work_start}</td>";
+					$work_colspan++;
+				}
+				if(!empty($options_list['work_end'])){
+					$html .= "<td class=\"center\">{$work_end}</td>";
+					$work_colspan++;
+				}
+				if(!empty($options_list['work_time'])){
+					$html .= "<td class=\"center\">{$work_time}H</td>";
+					$work_colspan++;
+				}
+				if(!empty($options_list['break_start'])){
+					$html .= "<td class=\"center\">{$break_start}</td>";
+					$break_colspan++;
+				}
+				if(!empty($options_list['break_end'])){
+					$html .= "<td class=\"center\">{$break_end}</td>";
+					$break_colspan++;
+				}
+				if(!empty($options_list['break_time'])){
+					$html .= "<td class=\"center\">{$break_time}H</td>";
+					$break_colspan++;
+				}
+				if(!empty($options_list['overtime_start'])){
+					$html .= "<td class=\"center\">{$over_start}</td>";
+					$overtime_colspan++;
+				}
+				if(!empty($options_list['overtime_end'])){
+					$html .= "<td class=\"center\">{$over_end}</td>";
+					$overtime_colspan++;
+				}
+				if(!empty($options_list['overtime_time'])){
+					$html .= "<td class=\"center\">{$overtime_time}H</td>";
+					$overtime_colspan++;
+				}
+				if(!empty($options_list['daywork'])){
+					$daywork = $work_time - $break_time - $overtime_time;
+					$html .= "<td class=\"center\">{$daywork}H</td>";
+					$daywork_colspan = 3;
+				}
+				if(!empty($options_list['message'])){
+					$html .= "<td>".self::h($data[$key]->text)."</td>";
+				}
+				$html .= "<td><a href=\"".admin_url('/')."admin.php?page=".$url."&did=".$data[$key]->data_id."\" title=\"ID".$data[$key]->data_id."を編集\">編集</a></td></tr>";
 
 			}
 
 			if($plugin_user_data['level']=='administrator'){
-				// 個別時間
-				foreach($user_arr as $u){
-					$user_total_work = ($u['work'] + $u['over']) - $u['break'];
-					$user_total_work = self::floor_point($user_total_work); // 小数第二位を切り捨て
-					$html .= "\n<tr class=\"user_total\"><td colspan=\"3\">".$u['name']."の合計時間</td><td colspan=\"2\" class=\"right\">勤務<span>".$u['work']."</span>時間</td><td colspan=\"2\" class=\"right\">休憩<span class=\"green\">".$u['break']."</span>時間</td><td colspan=\"2\" class=\"right\">残業<span>".$u['over']."</span>時間</td><td colspan=\"2\" class=\"right\">実働<span class=\"red\">{$user_total_work}</span>時間</td></tr>\n";
-				}
 				$colspan = '3';
 				$total_title = '総合計時間';
+				// 個別時間
+				if(!empty($options_list['total'])){
+					foreach($user_arr as $u){
+						$user_total_work = ($u['work'] + $u['over']) - $u['break'];
+						$user_total_work = self::floor_point($user_total_work); // 小数第二位を切り捨て
+						$html .= "\n<tr class=\"user_total\"><td colspan=\"{$colspan}\">".$u['name']."の合計時間</td>";
+						if(!empty($work_colspan)){
+							$html .= "<td colspan=\"{$work_colspan}\" class=\"right\">勤務<span>".$u['work']."</span>時間</td>";
+						}
+						if(!empty($break_colspan)){
+							$html .= "<td colspan=\"{$break_colspan}\" class=\"right\">休憩<span class=\"green\">".$u['break']."</span>時間</td>";
+						}
+						if(!empty($overtime_colspan)){
+							$html .= "<td colspan=\"{$overtime_colspan}\" class=\"right\">残業<span>".$u['over']."</span>時間</td>";
+						}
+						$html .= "<td colspan=\"{$daywork_colspan}\" class=\"right\">実働<span class=\"red\">{$user_total_work}</span>時間</td></tr>\n";
+					}
+				}
 			}else{
 				$colspan = '2';
 				$total_title = '合計時間';
@@ -431,7 +550,22 @@ class AttendanceClass {
 			// 総実働時間
 			$total_work = ($total_time + $over_total_time) - $break_total_time;
 			$total_work = self::floor_point($total_work); // 小数第二位を切り捨て
-			$html .= "\n<tr class=\"total\"><td colspan=\"{$colspan}\">{$total_title}</td><td colspan=\"2\" class=\"right\">勤務<span>{$total_time}</span>時間</td><td colspan=\"2\" class=\"right\">休憩<span class=\"green\">{$break_total_time}</span>時間</td><td colspan=\"2\" class=\"right\">残業<span>{$over_total_time}</span>時間</td><td colspan=\"2\" class=\"right\">実働<span class=\"red\">{$total_work}</span>時間</td></tr>\n";
+			// 総合表示
+			if(!empty($options_list['all_total'])){
+				$html .= "\n<tr class=\"total\"><td colspan=\"{$colspan}\">{$total_title}</td>";
+				//
+				if(!empty($work_colspan)){
+					$html .= "<td colspan=\"{$work_colspan}\" class=\"right\">勤務<span>{$total_time}</span>時間</td>";
+				}
+				if(!empty($break_colspan)){
+					$html .= "<td colspan=\"{$break_colspan}\" class=\"right\">休憩<span class=\"green\">{$break_total_time}</span>時間</td>";
+				}
+				if(!empty($overtime_colspan)){
+					$html .= "<td colspan=\"{$overtime_colspan}\" class=\"right\">残業<span>{$over_total_time}</span>時間</td>";
+				}
+				//
+				$html .= "<td colspan=\"{$daywork_colspan}\" class=\"right\">実働<span class=\"red\">{$total_work}</span>時間</td></tr>\n";
+			}
 
 		}
 
@@ -813,6 +947,8 @@ class AttendanceClass {
 	public function time_plus($total='0', $time='00:00'){
 
 		$arrTime = explode(':', $time);
+		$arrTime[0] = (isset($arrTime[0])) ? $arrTime[0]: '00';
+		$arrTime[1] = (isset($arrTime[1])) ? $arrTime[1]: '00';
 		$i = $arrTime[1] / 60; // 分を数値にする
 		$i = self::floor_point($i); // 小数第二位は切捨て
 		$return_data = $total + ($arrTime[0] + $i);
@@ -824,6 +960,10 @@ class AttendanceClass {
 
 		$arrTimeA = explode(':', $timeA);
 		$arrTimeB = explode(':', $timeB);
+		$arrTimeA[0] = (isset($arrTimeA[0])) ? $arrTimeA[0]: '00';
+		$arrTimeA[1] = (isset($arrTimeA[1])) ? $arrTimeA[1]: '00';
+		$arrTimeB[0] = (isset($arrTimeB[0])) ? $arrTimeB[0]: '00';
+		$arrTimeB[1] = (isset($arrTimeB[1])) ? $arrTimeB[1]: '00';
 		$time_date = date("H:i", mktime($arrTimeA[0]-$arrTimeB[0], $arrTimeA[1]-$arrTimeB[1], 0));
 		return $time_date;
 

@@ -87,6 +87,8 @@ class AttendanceAdmin extends AttendanceClass {
 	public function optionPage(){
 
 		$data = $GLOBALS['plugin_option_data'];
+		$data_list = (isset($data['list'])) ? $data['list'] : '';
+		$data_csv = (isset($data['csv'])) ? $data['csv'] : '';
 		$message = self::updateMessage();
 		$time_view_selected = parent::html_array_select($data['time_view'], '3', array('0', '1', '2'));
 		$time_write_selected = parent::html_array_select($data['time_write'], '3', array('admin', 'user', 'user-post'));
@@ -257,27 +259,69 @@ class AttendanceAdmin extends AttendanceClass {
 	// CSVデータ生成(一覧)
 	private function csv_data($data=''){
 
+		global $plugin_option_data;
+		$options = $plugin_option_data;
+		$options_list = (isset($options['csv'])) ? $options['csv'] : '';
 		$user_arr = array();
-		$csv_data = '"ユーザ名","勤務日","業務開始","業務終了","休憩開始","休憩終了","残業開始","残業終了"'."\n";
+		$csv_data = '"ユーザ名","勤務日",';
+		// 業務
+		if(!empty($options_list['work_start'])){ $csv_data .= '"業務開始時刻",'; }
+		if(!empty($options_list['work_end'])){ $csv_data .= '"業務終了時刻",'; }
+		if(!empty($options_list['work_time'])){ $csv_data .= '"業務時間",'; }
+		// 休憩
+		if(!empty($options_list['break_start'])){ $csv_data .= '"休憩開始時刻",'; }
+		if(!empty($options_list['break_end'])){ $csv_data .= '"休憩終了時刻",'; }
+		if(!empty($options_list['break_time'])){ $csv_data .= '"休憩時間",'; }
+		// 残業
+		if(!empty($options_list['overtime_start'])){ $csv_data .= '"残業開始時刻",'; }
+		if(!empty($options_list['overtime_end'])){ $csv_data .= '"残業終了時刻",'; }
+		if(!empty($options_list['overtime_time'])){ $csv_data .= '"残業時間",'; }
+		// etc
+		if(!empty($options_list['daywork'])){ $csv_data .= '"実働時間",'; }
+		if(!empty($options_list['message'])){ $csv_data .= '"メッセージ",'; }
+		$csv_data .= "\n";
 		// foreach
 		foreach($data as $d){
 			$uid = $d->user_id;
 			// ユーザデータ取得
 			if(empty($user_arr[$uid])){
-				$user = get_users(array('orderby'=>ID,'order'=>'ASC', 'include'=>$uid));
+				$user = get_users(array('orderby'=>'ID','order'=>'ASC', 'include'=>$uid));
 				$user_arr[$uid] = $user;
 			}else{
 				$user = $user_arr[$uid];
 			}
+			//
+			$start_time = self::work_point(1, $d->start_time, $d->start_i_time);
+			$finish_time = self::work_point(1, $d->finish_time, $d->finish_i_time);
+			$work_time = self::time_plus(0, self::time_minus($finish_time, $start_time));
 			// 休憩処理
 			$break_start = self::work_point($d->break_point, $d->break_start_time, $d->break_start_i_time);
 			$break_finish = self::work_point($d->break_point, $d->break_finish_time, $d->break_finish_i_time);
+			$break_time = self::time_plus(0, self::time_minus($break_finish, $break_start));
 			// 残業処理
 			$over_start = self::work_point($d->over_point, $d->over_start_time, $d->over_start_i_time);
 			$over_finish = self::work_point($d->over_point, $d->over_finish_time, $d->over_finish_i_time);
+			$overtime_time = self::time_plus(0, self::time_minus($over_finish, $over_start));
 			//
+			$daywork = $work_time - $break_time - $overtime_time;
 			$date_ex = explode(" ", $d->date);
-			$csv_data .= '"'.$user[0]->data->display_name.'","'.$date_ex[0].'","'.$d->start_time.':'.$d->start_i_time.'","'.$d->finish_time.':'.$d->finish_i_time.'","'.$break_start.'","'.$break_finish.'","'.$over_start.'","'.$over_finish.'"'."\n";
+			$csv_data .= '"'.$user[0]->data->display_name.'","'.$date_ex[0].'",';
+			// 業務
+			if(!empty($options_list['work_start'])){ $csv_data .= '"'.$start_time.'",'; }
+			if(!empty($options_list['work_end'])){ $csv_data .= '"'.$finish_time.'",'; }
+			if(!empty($options_list['work_time'])){ $csv_data .= '"'.$work_time.'H",'; }
+			// 休憩
+			if(!empty($options_list['break_start'])){ $csv_data .= '"'.$break_start.'",'; }
+			if(!empty($options_list['break_end'])){ $csv_data .= '"'.$break_finish.'",'; }
+			if(!empty($options_list['break_time'])){ $csv_data .= '"'.$break_time.'H",'; }
+			// 残業
+			if(!empty($options_list['overtime_start'])){ $csv_data .= '"'.$over_start.'",'; }
+			if(!empty($options_list['overtime_end'])){ $csv_data .= '"'.$over_start.'",'; }
+			if(!empty($options_list['overtime_time'])){ $csv_data .= '"'.$overtime_time.'H",'; }
+			// etc
+			if(!empty($options_list['daywork'])){ $csv_data .= '"'.$daywork.'H",'; }
+			if(!empty($options_list['message'])){ $csv_data .= '"'.self::h($d->text).'",'; }
+			$csv_data .= "\n";
 		}
 
 		return trim($csv_data);
@@ -297,7 +341,7 @@ class AttendanceAdmin extends AttendanceClass {
 			$uid = $d->user_id;
 			// 個別計算用
 			if(empty($user_arr[$uid])){
-				$user = get_users(array('orderby'=>ID,'order'=>'ASC', 'include'=>$uid));
+				$user = get_users(array('orderby'=>'ID','order'=>'ASC', 'include'=>$uid));
 				$user_arr[$uid] = array(
 					'name'=>$user[0]->data->display_name, 'work'=>'0', 'break'=>'0', 'over'=>'0',
 				);

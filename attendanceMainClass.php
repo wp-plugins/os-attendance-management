@@ -13,6 +13,7 @@ class AttendanceMain extends AttendanceClass {
 	// ショートコードの処理
 	public function viewMode($atts, $content=null){
 
+
 		extract(shortcode_atts(array(
 			'uid' => '', 'type' => '1', 'day' => '',
 		), $atts));

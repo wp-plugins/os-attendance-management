@@ -79,6 +79,9 @@
 #attendance-plugin #month-submit .s-click:hover{
 	cursor:pointer;background-color:#ccc;
 }
+#attendance-plugin .list-checked span{
+	margin-right:10px;
+}
 /*helpPage*/
 #help-page .strong{
 	margin:10px 0 0 0;font-weight:bold;font-size:17px;

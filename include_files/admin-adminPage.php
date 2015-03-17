@@ -14,6 +14,7 @@ if(class_exists('AttendanceAdmin')){
 			</div>
 			<h2>使い方</h2>
 			<div>
+				<p>新規作成でユーザごとの勤務時間を作成できます。</p>
 				<p>[attendance] というショートコードで記事内に表示できます。</p>
 				<p>詳しくは<a href="admin.php?page=attendance-management-help.php">ヘルプページ</a>をご覧ください</p>
 			</div>
@@ -23,7 +24,8 @@ if(class_exists('AttendanceAdmin')){
 				<p>危険性がありますので、<a href="https://wordpress.org/plugins/" target="_blank">WordPress公式サイト</a>に登録されていないものはお勧めしません。自己責任でご利用ください。</p>
 			</div>
 			<h2>更新履歴</h2>
-			<div>
+			<div style="padding:10px;width:450px;height:100px;overflow-y:scroll;border:1px solid #ccc;background-color:white;">
+				2015-03-17  CSV設定機能及び出力の修正
 				<p>2015-03-17  各箇所の修正、ヘルプページ追加</p>
 				<p>2015-03-09  軽微な修正</p>
 				<p>2015-02-11  軽微な修正</p>
@@ -32,6 +34,7 @@ if(class_exists('AttendanceAdmin')){
 				<p>2014-07-17  軽微な修正</p>
 				<p>2014.07.18  バグの修正</p>
 				<p>2013.11.29  バグの修正</p>
+				<p>2013.11.25  First release</p>
 			</div>
 		</div>
 	</div>

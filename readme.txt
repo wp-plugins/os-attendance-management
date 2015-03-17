@@ -3,13 +3,13 @@ Contributors: olivesystem
 Tags: plugin,admin
 Requires at least: 2.8
 Tested up to: 4.1
-Stable tag: 1.0.65
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-出勤・退勤などの勤怠が管理できるプラグインです。
+出勤・退勤などの勤怠（勤務状況）が管理できるプラグインです。
 出退勤を一覧でき、データをCSVとしてダウンロードできます。
 
 
@@ -23,6 +23,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 == Screenshots ==
 
 == Changelog ==
+
+= 1.1.1 =
+* 2015-03-17  CSV設定機能及び出力の修正
 
 = 1.1.0 =
 * 2015-03-17  各箇所の修正、ヘルプページ追加

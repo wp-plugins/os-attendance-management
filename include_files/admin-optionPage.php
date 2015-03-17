@@ -55,6 +55,64 @@ $admin_page_view=<<<_EOD_
 							<input type="radio" name="admin-list" value="1" id="admin-list-one" {$admin_list_checked[0]} /><label for="admin-list-one">1週間</label>　<input type="radio" name="admin-list" value="2" id="admin-list-two" {$admin_list_checked[1]} /><label for="admin-list-two">2週間</label>　<input type="radio" name="admin-list" value="3" id="admin-list-three" {$admin_list_checked[2]} /><label for="admin-list-three">3週間</label>　<input type="radio" name="admin-list" value="m" id="admin-list-month" {$admin_list_checked[3]} /><label for="admin-list-month">一ヶ月</label>
 						</td>
 					</tr>
+
+_EOD_
+;
+echo $admin_page_view;
+//
+	for($i=0; $i<2; $i++){
+		switch($i){
+			case 1:
+				$key_name = 'csv';
+				$value = $data_csv;
+				$row_title = 'CSV出力の項目<br />（一覧データCSV）';
+				break;
+			default:
+				$key_name = 'list';
+				$value = $data_list;
+				$row_title = '一覧に表示する項目';
+		}
+?>
+
+					<tr>
+						<th scope="row"><?php echo $row_title; ?></th>
+						<td class="list-checked">
+							<p>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[work_start]" id="<?php echo $key_name; ?>_work_start" value="1" <?php if(!empty($value['work_start'])){ ?>checked<?php } ?> /><label for="<?php echo $key_name; ?>_work_start">業務開始時刻</label></span>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[work_end]" id="<?php echo $key_name; ?>_work_end" value="1" <?php if(!empty($value['work_end'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_work_end">業務終了時刻</label></span>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[work_time]" id="<?php echo $key_name; ?>_work_time" value="1" <?php if(!empty($value['work_time'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_work_time">業務時間</label></span>
+							</p>
+							<p>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[break_start]" id="<?php echo $key_name; ?>_break_start" value="1" <?php if(!empty($value['break_start'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_break_start">休憩開始時刻</label></span>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[break_end]" id="<?php echo $key_name; ?>_break_end" value="1" <?php if(!empty($value['break_end'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_break_end">休憩終了時刻</label></span>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[break_time]" id="<?php echo $key_name; ?>_break_time" value="1" <?php if(!empty($value['break_time'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_break_time">休憩時間</label></span>
+							</p>
+							<p>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[overtime_start]" id="<?php echo $key_name; ?>_overtime_start" value="1" <?php if(!empty($value['overtime_start'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_overtime_start">残業開始時刻</label></span>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[overtime_end]" id="<?php echo $key_name; ?>_overtime_end" value="1" <?php if(!empty($value['overtime_end'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_overtime_end">残業終了時刻</label></span>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[overtime_time]" id="<?php echo $key_name; ?>_overtime_time" value="1" <?php if(!empty($value['overtime_time'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_overtime_time">残業時間</label></span>
+							</p>
+		<?php
+		if($i==0){
+		?>
+							<p>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[daywork]" id="<?php echo $key_name; ?>_daywork" value="1" <?php if(!empty($value['daywork'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_daywork">日ごとの実働時間</label></span>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[total]" id="<?php echo $key_name; ?>_total" value="1" <?php if(!empty($value['total'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_total">各々の合計時間</label></span>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[all_total]" id="<?php echo $key_name; ?>_all_total" value="1" <?php if(!empty($value['all_total'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_all_total">総合時間</label></span>
+							</p>
+		<?php
+		}
+		?>
+							<p>
+								<span><input type="checkbox" name="<?php echo $key_name; ?>[message]" id="<?php echo $key_name; ?>_message" value="1" <?php if(!empty($value['message'])){ ?>checked<?php } ?>  /><label for="<?php echo $key_name; ?>_message">メッセージ</label></span>
+							</p>
+						</td>
+					</tr>
+
+<?php
+	}
+//
+$admin_page_view=<<<_EOD_
 					<tr class="end">
 						<th scope="row">ライセンス</th>
 						<td>
