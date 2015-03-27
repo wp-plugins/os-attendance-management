@@ -1,11 +1,8 @@
 <?php
 if(class_exists('AttendanceUser') || class_exists('AttendanceAdmin')){
 
-	if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='administrator'){
-		$post_url = "admin.php?page=attendance-management-post.php";
-	}else{
-		$post_url = "admin.php?page=attendance-management-user-post.php";
-	}
+	$post_page = (isset($_GET) && isset($_GET['page'])) ? esc_html($_GET['page']) : "attendance-management-user-post.php";
+	$post_url = "admin.php?page=".$post_page;
 
 $user_page_view=<<<_EOD_
 	<script type="text/javascript">
@@ -97,6 +94,16 @@ $user_page_view=<<<_EOD_
 	});
 	</script>
 	<div id="attendance-plugin">
+
+_EOD_
+;
+echo $user_page_view;
+	//
+	if($post_page=='attendance-management-post.php'){
+		include_once(OSAM_PLUGIN_INCLUDE_FILES."/admin-head.php");
+	}
+	//
+$user_page_view=<<<_EOD_
 		<div class="wrap">
 			<h2>出勤・勤怠の新規作成</h2>
 			<div style="color:red;">{$message}</div>

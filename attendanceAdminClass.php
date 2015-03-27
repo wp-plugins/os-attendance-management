@@ -10,32 +10,33 @@ class AttendanceAdmin extends AttendanceClass {
 		}
 		// まず実行
 		add_action('admin_init', array('AttendanceAdmin', 'actionAdminInit'));
+		// POST処理
+		//add_action('admin_init', self::admin_post());
+		add_action('admin_init', array('AttendanceAdmin', 'admin_post'));
 		// 管理画面メニュー
-		@add_action('admin_menu', array('AttendanceAdmin', 'menuViews'));
+		add_action('admin_menu', array('AttendanceAdmin', 'menuViews'));
 
 	}
 	// プラグインメニュー
 	public function menuViews(){
 
-		global $plugin_option_data; // オプションデータ
-		global $plugin_user_data; // ユーザデータ
+		global $am_plugin_option_data; // オプションデータ
+		global $am_plugin_user_data; // ユーザデータ
 
-		// POST処理
-		@add_action('admin_init', self::admin_post());
 		// CSS
 		add_action('admin_init', array('AttendanceClass', 'admin_css_read'));
 
 		// ゲストは管理画面を表示させない。トップページへ
-		if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='guest'){
+		if(isset($am_plugin_user_data['level']) && $am_plugin_user_data['level']=='guest'){
 
 			wp_safe_redirect(home_url('/'));
 			exit;
 
 		// 登録ユーザのみのメニュー表示、処理
-		}elseif(isset($plugin_option_data['time_write']) && $plugin_user_data['level']!='administrator'){
+		}elseif(isset($am_plugin_option_data['time_write']) && $am_plugin_user_data['level']!='administrator'){
 
 			global $attendanceUser;
-			switch($plugin_option_data['time_write']){
+			switch($am_plugin_option_data['time_write']){
 				case 'user':
 					$attendanceUser->menuViews();
 					break;
@@ -65,6 +66,7 @@ class AttendanceAdmin extends AttendanceClass {
 			add_submenu_page('attendance-management-view.php', '出勤・勤怠管理の基本設定', '基本設定', 'administrator', 'attendance-management-options.php', array('AttendanceAdmin', 'optionPage'));
 			add_submenu_page('attendance-management-view.php', '出勤・勤怠の一覧', '出勤・勤怠の一覧', 'administrator', 'attendance-management-list.php', array('AttendanceAdmin', 'listPage'));
 			add_submenu_page('attendance-management-view.php', '出勤・勤怠の新規作成', '出勤・勤怠の新規作成', 'administrator', 'attendance-management-post.php', array('AttendanceAdmin', 'postPage'));
+			add_submenu_page('attendance-management-view.php', 'プロフ（スキル）設定', 'プロフ（スキル）設定', 'administrator', 'attendance-management-prof-option.php', array('AttendanceProf', 'profOptionPage'));
 			add_submenu_page('attendance-management-view.php', 'ヘルプページ', 'ヘルプページ', 'administrator', 'attendance-management-help.php', array('AttendanceAdmin', 'helpPage'));
 			// メニューに非表示するページ
 			add_submenu_page('attendance-management-list.php', '出勤・勤怠の編集', null, 'administrator', 'attendance-management-write.php', array('AttendanceAdmin', 'writePage'));
@@ -86,7 +88,7 @@ class AttendanceAdmin extends AttendanceClass {
 	// Page 基本設定
 	public function optionPage(){
 
-		$data = $GLOBALS['plugin_option_data'];
+		$data = $GLOBALS['am_plugin_option_data'];
 		$data_list = (isset($data['list'])) ? $data['list'] : '';
 		$data_csv = (isset($data['csv'])) ? $data['csv'] : '';
 		$message = self::updateMessage();
@@ -102,7 +104,7 @@ class AttendanceAdmin extends AttendanceClass {
 	// Page　出勤・勤怠の新規作成
 	public function postPage(){
 
-		global $plugin_user_data;
+		global $am_plugin_user_data;
 		$users = self::getMember();
 		$message = self::updateMessage();
 		self::_postPage($message, $users);
@@ -125,7 +127,7 @@ class AttendanceAdmin extends AttendanceClass {
 	// Page　出勤・勤怠の編集
 	public function writePage(){
 
-		global $plugin_user_data;
+		global $am_plugin_user_data;
 		$data = self::working_get_data();
 		$message = self::updateMessage();
 		$form_html = self::post_form_page('', '1', $data['form_arr']);
@@ -210,10 +212,10 @@ class AttendanceAdmin extends AttendanceClass {
 	*/
 	public function actionAdminInit(){
 
-		global $plugin_user_data;
+		global $am_plugin_user_data;
 
 		// 管理者権限のときのみ実行
-		if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='administrator'){
+		if(isset($am_plugin_user_data['level']) && $am_plugin_user_data['level']=='administrator'){
 
 			if(isset($_GET) && isset($_GET['csv_dl'])){
 				self::csv_export();
@@ -259,8 +261,8 @@ class AttendanceAdmin extends AttendanceClass {
 	// CSVデータ生成(一覧)
 	private function csv_data($data=''){
 
-		global $plugin_option_data;
-		$options = $plugin_option_data;
+		global $am_plugin_option_data;
+		$options = $am_plugin_option_data;
 		$options_list = (isset($options['csv'])) ? $options['csv'] : '';
 		$user_arr = array();
 		$csv_data = '"ユーザ名","勤務日",';
@@ -401,7 +403,7 @@ class AttendanceAdmin extends AttendanceClass {
 	/*
 	*  メッセージ
 	*/
-	private function updateMessage(){
+	public function updateMessage(){
 
 		$return_data = '';
 
@@ -435,27 +437,32 @@ class AttendanceAdmin extends AttendanceClass {
 	// ユーザ、管理者の共通のPOST処理
 	public function admin_post(){
 
-		global $plugin_user_data;
+		global $am_plugin_user_data;
 
-		if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='guest'){
-
-			wp_safe_redirect(home_url('/'));
-			exit;
-
-		}else{
-
-			if(isset($_GET) && isset($_GET['page'])){
-				if(stristr($_GET['page'], "attendance-management") || stristr($_POST['page'], "attendance-management")){
-
-					if(isset($plugin_user_data['level']) && $plugin_user_data['level']=='administrator'){
+		if(isset($_GET) && isset($_GET['page'])){
+			//
+			if(isset($_POST) && is_array($_POST)){
+				$post = $_POST;
+			}else{
+				$post = array();
+			}
+			//
+			if(stristr($_GET['page'], "attendance-management") || (isset($post['page']) && stristr($post['page'], "attendance-management"))){
+				//
+				if(isset($am_plugin_user_data['level']) && $am_plugin_user_data['level']=='guest'){
+					wp_safe_redirect(home_url('/'));
+					exit;
+				}else{
+					//
+					if(isset($am_plugin_user_data['level']) && $am_plugin_user_data['level']=='administrator'){
 						$insert_url = 'attendance-management-post.php';
 						$update_url = 'attendance-management-write.php';
 					}else{
 						$insert_url = 'attendance-management-user-post.php';
 						$update_url = 'attendance-management-user-write.php';
 					}
-
-					if(!empty($_POST['new'])){
+					//
+					if(!empty($post['new'])){
 						$insert_id = self::post_insert();
 						// リダイレクト処理
 						if(!empty($insert_id)){
@@ -465,8 +472,8 @@ class AttendanceAdmin extends AttendanceClass {
 							wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=insert-ng');
 							exit;
 						}
-
-					}elseif(!empty($_POST['Delete'])){
+					//
+					}elseif(!empty($post['Delete'])){
 						$delete_id = self::post_delete();
 						// リダイレクト処理
 						if(!empty($delete_id)){
@@ -476,7 +483,7 @@ class AttendanceAdmin extends AttendanceClass {
 							wp_safe_redirect(admin_url('/').'admin.php?page='.$insert_url.'&msg=delete-ng');
 							exit;
 						}
-					}elseif(!empty($_POST['write'])){
+					}elseif(!empty($post['write'])){
 						$update_id = self::post_write();
 						// リダイレクト処理
 						if(!empty($update_id)){
@@ -486,7 +493,7 @@ class AttendanceAdmin extends AttendanceClass {
 							wp_safe_redirect(admin_url('/').'admin.php?page='.$update_url.'&msg=write-ng');
 							exit;
 						}
-					}elseif(!empty($_POST['list_search']) || !empty($_POST['search_back_month']) || !empty($_POST['search_now_month']) || !empty($_POST['search_next_month'])){
+					}elseif(!empty($post['list_search']) || !empty($post['search_back_month']) || !empty($post['search_now_month']) || !empty($post['search_next_month'])){
 						self::list_search_redirect();
 					}
 

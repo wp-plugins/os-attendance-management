@@ -82,9 +82,43 @@
 #attendance-plugin .list-checked span{
 	margin-right:10px;
 }
+#attendance-plugin .mtb15{
+	margin:15px 0 15px 0;
+}
+#attendance-plugin .inline{
+	display:inline-block;
+}
+#attendance-plugin .pr15{
+	padding-right:15px;
+}
 /*helpPage*/
 #help-page .strong{
 	margin:10px 0 0 0;font-weight:bold;font-size:17px;
+}
+/*skillInput*/
+#os-admin-skillsheet{
+	margin:5px 5px 10px 5px;width:100%;
+}
+#os-admin-skillsheet label{
+	font-weight:bold;
+}
+#os-admin-skillsheet .input{
+	display:inline-block;
+}
+#os-admin-skillsheet .os-block{
+	margin:15px 0 15px 0;display:block;vertical-align:top;
+}
+#os-admin-skillsheet .os-inline{
+	display:inline-block;vertical-align:top;
+}
+#os-admin-skillsheet .name-label{
+	display:inline-block;min-width:210px;vertical-align:top;
+}
+#os-admin-skillsheet .os-group-block .os-inline .os-inline{
+	padding-right:10px;
+}
+#os-admin-skillsheet .os-group-block .os-inline .os-inline label{
+	display:block;
 }
 /*clearfix*/
 .clearfix:after{

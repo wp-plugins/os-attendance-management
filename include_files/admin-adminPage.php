@@ -25,16 +25,17 @@ if(class_exists('AttendanceAdmin')){
 			</div>
 			<h2>更新履歴</h2>
 			<div style="padding:10px;width:450px;height:100px;overflow-y:scroll;border:1px solid #ccc;background-color:white;">
-				2015-03-17  CSV設定機能及び出力の修正
+			2015-03-27  バグの修正、スキルシート機能追加
+				<p>2015-03-17  CSV設定機能及び出力の修正</p>
 				<p>2015-03-17  各箇所の修正、ヘルプページ追加</p>
 				<p>2015-03-09  軽微な修正</p>
 				<p>2015-02-11  軽微な修正</p>
 				<p>2015-02-07  軽微な修正</p>
 				<p>2015-02-07  軽微な修正</p>
 				<p>2014-07-17  軽微な修正</p>
-				<p>2014.07.18  バグの修正</p>
-				<p>2013.11.29  バグの修正</p>
-				<p>2013.11.25  First release</p>
+				<p>2014-07-18  バグの修正</p>
+				<p>2013-11-29  バグの修正</p>
+				<p>2013-11-25  First release</p>
 			</div>
 		</div>
 	</div>

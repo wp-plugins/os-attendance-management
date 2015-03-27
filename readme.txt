@@ -1,9 +1,9 @@
 === 出勤・勤怠プラグイン ===
 Contributors: olivesystem
-Tags: plugin,admin
-Requires at least: 2.8
+Tags: plugin,admin,出勤,勤怠
+Requires at least: 3.1
 Tested up to: 4.1
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 == Screenshots ==
 
 == Changelog ==
+
+= 1.2.0 =
+* 2015-03-27  バグの修正、スキルシート機能追加
 
 = 1.1.1 =
 * 2015-03-17  CSV設定機能及び出力の修正

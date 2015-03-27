@@ -3,7 +3,7 @@
 Plugin Name: 出勤・勤怠管理プラグイン
 Plugin URI: http://lp.olivesystem.jp/plugin-am
 Description: WordPressで出勤・退勤などの勤怠（勤務状況）が管理できるプラグインです
-Version: 1.1.1
+Version: 1.2.0
 Author: OLIVESYSTEM（オリーブシステム）
 Author URI: http://lp.olivesystem.jp/
 */
@@ -11,11 +11,12 @@ if(!isset($wpdb)){
 	global $wpdb;
 }
 // 現在のプラグインバージョン
-define('OSAM_PLUGIN_VERSION','1.1.1');
+define('OSAM_PLUGIN_VERSION','1.2.0');
 // DBにデータを保存する項目名
 define('OSAM_PLUGIN_DATA_NAME','os_attendance_management_Plugin');
 // テーブル名
 define('OSAM_PLUGIN_TABLE_NAME', $wpdb->prefix.'os_attendance_plugin_data');
+define('OSAM_PLUGIN_SKILLSHEET_OPTION_TABLE', $wpdb->prefix.'os_attendance_plugin_skillsheet_option_data'); // スキルシート設定テーブル
 // プラグインのディレクトリ
 define('OSAM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 // テキストメインのPHPファイルをいれているディレクトリ
@@ -30,6 +31,8 @@ $attendanceMain = new AttendanceMain();
 // 管理画面側
 include OSAM_PLUGIN_DIR."attendanceUserClass.php";
 $attendanceUser = new AttendanceUser();
+include OSAM_PLUGIN_DIR."attendanceProfClass.php";
+$attendanceProf = new AttendanceProf();
 include OSAM_PLUGIN_DIR."attendanceAdminClass.php";
 $attendanceAdmin = new AttendanceAdmin();
 ?>

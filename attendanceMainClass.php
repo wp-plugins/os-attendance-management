@@ -29,11 +29,11 @@ class AttendanceMain extends AttendanceClass {
 	//
 	private function shortcode_view($content='', $arr=array()){
 
-		global $plugin_option_data; // オプションデータ
-		global $plugin_user_data; // ユーザデータ
+		global $am_plugin_option_data; // オプションデータ
+		global $am_plugin_user_data; // ユーザデータ
 
 		// 時間表示
-		$cl = self::clockText($plugin_option_data['clock']);
+		$cl = self::clockText($am_plugin_option_data['clock']);
 
 		// 初期値
 		$view = '';
@@ -68,7 +68,7 @@ class AttendanceMain extends AttendanceClass {
 			$now = self::sql_escape($arr['day']);
 		}
 
-		switch($plugin_option_data['view-list']){
+		switch($am_plugin_option_data['view-list']){
 			case '2':
 				$st_time = $now.' 00:00:00';
 				$end = date("Y-m-d", strtotime($st_time." +2 week"));
@@ -98,7 +98,7 @@ class AttendanceMain extends AttendanceClass {
 
 		if(!empty($data[0])){
 
-			if($plugin_user_data['level']=='administrator'){
+			if($am_plugin_user_data['level']=='administrator'){
 				$php_url = 'attendance-management-write.php';
 			}else{
 				$php_url = 'attendance-management-user-write.php';
@@ -121,7 +121,7 @@ class AttendanceMain extends AttendanceClass {
 					$view_html = '<div class="person"><p class="name">'.$name.'</p>';
 				}
 
-				if(($plugin_user_data['ID']==$uid && $plugin_option_data['time_write']=='user') || $plugin_user_data['level']=='administrator'){
+				if(($am_plugin_user_data['ID']==$uid && $am_plugin_option_data['time_write']=='user') || $am_plugin_user_data['level']=='administrator'){
 					$write_tag = '<p class="write"><a href="'.admin_url('/').'admin.php?page='.$php_url.'&did='.$did.'" title="この勤怠を編集">編集</a></p>';
 				}else{
 					$write_tag = '';
@@ -182,12 +182,12 @@ class AttendanceMain extends AttendanceClass {
 	// 基本設定が12時間表示に設定されているとき、表示変更
 	private function hour_format($htime='', $itime='', $comma=array(':', '')){
 
-		global $plugin_option_data; // オプションデータ
+		global $am_plugin_option_data; // オプションデータ
 
-		if($plugin_option_data['time_view']=='1' || $plugin_option_data['time_view']=='2'){
+		if($am_plugin_option_data['time_view']=='1' || $am_plugin_option_data['time_view']=='2'){
 			$change_time = $htime.":".$itime;
 			$return_time = date("A g".$comma[0]."i", strtotime($change_time)).$comma[1];
-			if($plugin_option_data['time_view']=='1'){
+			if($am_plugin_option_data['time_view']=='1'){
 				$return_time = str_replace(array('AM','PM'), array('午前','午後'), $return_time);
 			}
 		}else{

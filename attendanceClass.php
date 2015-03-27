@@ -1,7 +1,7 @@
 <?php
 // エラーを避けるために使用する変数
-$plugin_option_data = ''; // オプションデータ用
-$plugin_user_data = ''; // ログインユーザデータ
+$am_plugin_option_data = ''; // オプションデータ用
+$am_plugin_user_data = ''; // ログインユーザデータ
 $plugin_sqlfile_check = ''; // SQL実行時に使用
 // class開始
 class AttendanceClass {
@@ -42,7 +42,7 @@ class AttendanceClass {
 			}
 		}
 		//
-		$GLOBALS['plugin_option_data'] = $options;
+		$GLOBALS['am_plugin_option_data'] = $options;
 
 	}
 	//
@@ -71,12 +71,12 @@ class AttendanceClass {
 				if(isset($current_user->roles) && isset($current_user->roles[0])){
 					$arr['level'] = $current_user->roles[0];
 				}
-				$GLOBALS['plugin_user_data'] = $arr;
+				$GLOBALS['am_plugin_user_data'] = $arr;
 			}
 
 		}else{
 
-			$GLOBALS['plugin_user_data'] = array('level'=>'guest');
+			$GLOBALS['am_plugin_user_data'] = array('level'=>'guest');
 
 		}
 
@@ -202,7 +202,7 @@ class AttendanceClass {
 	// 変換後リダイレクト
 	public function list_search_redirect(){
 
-		global $plugin_user_data;
+		global $am_plugin_user_data;
 		$post_url = '';
 
 		// 開始年月日
@@ -216,7 +216,7 @@ class AttendanceClass {
 			unset($_POST['end_y']);	unset($_POST['end_m']);	unset($_POST['end_d']);
 		}
 		// ユーザid指定
-		if( (!empty($_POST['uid']) && $plugin_user_data['level']!='administrator') || (isset($_POST['uid']) && empty($_POST['uid'])) ){
+		if( (!empty($_POST['uid']) && $am_plugin_user_data['level']!='administrator') || (isset($_POST['uid']) && empty($_POST['uid'])) ){
 			unset($_POST['uid']);
 		}
 		/*
@@ -242,7 +242,7 @@ class AttendanceClass {
 			$post_url .= "&end_day=".$end_day;
 		}
 		// 上記時のユーザ指定（管理者のみ可能）
-		if(!empty($_POST['user_type']) && $plugin_user_data['level']=='administrator' && $_POST['user_type']!='all' && $_POST['user_type']!='only'){
+		if(!empty($_POST['user_type']) && $am_plugin_user_data['level']=='administrator' && $_POST['user_type']!='all' && $_POST['user_type']!='only'){
 			$post_url .= "&uid=".self::h($_POST['user_type']);
 			unset($_POST['user_type']);
 		}
@@ -259,7 +259,7 @@ class AttendanceClass {
 
 		}
 
-		if($plugin_user_data['level']=='administrator'){
+		if($am_plugin_user_data['level']=='administrator'){
 
 			wp_safe_redirect(admin_url('/').'admin.php?page=attendance-management-list.php'.$post_url);
 			exit;
@@ -275,14 +275,14 @@ class AttendanceClass {
 	// 編集
 	public function post_write(){
 
-		global $plugin_user_data;
+		global $am_plugin_user_data;
 
 		// 管理者以外は自分の勤怠しか操作できない
-		if($plugin_user_data['level']=='administrator'){
+		if($am_plugin_user_data['level']=='administrator'){
 			return self::update_post_write();
 		}else{
 			// idが一致しない場合は処理しない
-			if($plugin_user_data['ID']!=$_POST['id']){
+			if($am_plugin_user_data['ID']!=$_POST['id']){
 				wp_safe_redirect(admin_url('/').'admin.php?page=attendance-management-write.php&did=&msg=write-user-ng');
 				exit;
 			}else{
@@ -294,14 +294,14 @@ class AttendanceClass {
 	// 削除
 	public function post_delete(){
 
-		global $plugin_user_data;
+		global $am_plugin_user_data;
 
 		// 管理者以外は自分の勤怠しか操作できない
-		if($plugin_user_data['level']=='administrator'){
+		if($am_plugin_user_data['level']=='administrator'){
 			return self::update_post_delete();
 		}else{
 			// idが一致しない場合は処理しない
-			if($plugin_user_data['ID']!=$_POST['id']){
+			if($am_plugin_user_data['ID']!=$_POST['id']){
 				wp_safe_redirect(admin_url('/').'admin.php?page=attendance-management-write.php&did=&msg=write-user-ng');
 				exit;
 			}else{
@@ -358,9 +358,9 @@ class AttendanceClass {
 	public function listHtml($data='', $users='', $type=''){
 
 		$html = '';
-		global $plugin_user_data;
-		global $plugin_option_data;
-		$options = $plugin_option_data;
+		global $am_plugin_user_data;
+		global $am_plugin_option_data;
+		$options = $am_plugin_option_data;
 
 		// データがあれば実行
 		if(!empty($data[0])){
@@ -369,7 +369,7 @@ class AttendanceClass {
 				$user_html = '<th>ユーザ名</th>';
 			}
 
-			if($plugin_user_data['level']=='administrator'){
+			if($am_plugin_user_data['level']=='administrator'){
 				$url = 'attendance-management-write.php';
 			}else{
 				$url = 'attendance-management-user-write.php';
@@ -394,7 +394,7 @@ class AttendanceClass {
 			if(!empty($options_list['daywork'])){ $html .= "<th>実働時間</th>"; }
 			if(!empty($options_list['message'])){ $html .= "<th>メッセージ</th>"; }
 			$html .= "<th class=\"right\"></th>";
-			$cl = self::clockText($plugin_option_data['clock']);
+			$cl = self::clockText($am_plugin_option_data['clock']);
 			$user_arr = array();
 			$total_time = 0;
 			$break_total_time = 0;
@@ -463,7 +463,7 @@ class AttendanceClass {
 				$over_total_time = self::time_plus($over_total_time, $over_hi); // 総数
 				$overtime_time = self::time_plus(0, $over_hi);
 				// tr td
-				if($plugin_user_data['level']!='administrator'){
+				if($am_plugin_user_data['level']!='administrator'){
 					$user_html = '';
 				}
 				//
@@ -521,7 +521,7 @@ class AttendanceClass {
 
 			}
 
-			if($plugin_user_data['level']=='administrator'){
+			if($am_plugin_user_data['level']=='administrator'){
 				$colspan = '3';
 				$total_title = '総合計時間';
 				// 個別時間
@@ -764,10 +764,10 @@ class AttendanceClass {
 	public function search_ymd_options(){
 
 		$return_array = array('0', '1', '2', '3', '4', '5');
-		global $plugin_option_data;
+		global $am_plugin_option_data;
 
-		if(!empty($plugin_option_data['search_start_year'])){
-			$start_year = $plugin_option_data['search_start_year'];
+		if(!empty($am_plugin_option_data['search_start_year'])){
+			$start_year = $am_plugin_option_data['search_start_year'];
 		}else{
 			$start_year = '2012';
 		}
@@ -907,9 +907,9 @@ class AttendanceClass {
 	//
 	private function search_list_hidden(){
 
-		global $plugin_user_data;
+		global $am_plugin_user_data;
 
-		if($plugin_user_data['level']=='administrator'){
+		if($am_plugin_user_data['level']=='administrator'){
 			if(empty($_GET['uid'])){
 				$html = '<input type="hidden" name="user_type" value="all" />';
 			}else{
@@ -1215,13 +1215,27 @@ class AttendanceClass {
 	// 勤怠の新規作成
 	public function post_insert(){
 
-		global $plugin_user_data;
-		$now = date("Y-m-d H:i:s", time());
+		global $am_plugin_user_data;
 		$cols = array('user_id', 'create_time', 'text', 'start_time', 'start_i_time', 'finish_time', 'finish_i_time', 'break_start_time', 'break_start_i_time', 'break_finish_time', 'break_finish_i_time', 'break_point', 'over_start_time', 'over_start_i_time', 'over_finish_time', 'over_finish_i_time', 'over_point', 'date');
 		$values = array('%d', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s');
 		$sql = self::sql_insert_txt(OSAM_PLUGIN_TABLE_NAME, $cols, $values);
-		$date = $_POST['work_day']." 00:00:00";
-		$arr = array($_POST['id'], $now, $_POST['text'], $_POST['start_time'], $_POST['start_i_time'], $_POST['finish_time'], $_POST['finish_i_time'], $_POST['break_start_time'], $_POST['break_start_i_time'], $_POST['break_finish_time'], $_POST['break_finish_i_time'], $_POST['break_point'], $_POST['over_start_time'], $_POST['over_start_i_time'], $_POST['over_finish_time'], $_POST['over_finish_i_time'], $_POST['over_point'], $date);
+		$key_arr = array('id', 'create_time', 'text', 'start_time', 'start_i_time', 'finish_time', 'finish_i_time', 'break_start_time', 'break_start_i_time', 'break_finish_time', 'break_finish_i_time', 'break_point', 'over_start_time', 'over_start_i_time', 'over_finish_time', 'over_finish_i_time', 'over_point', 'date');
+		$arr = array();
+		// チェックして格納
+		foreach($key_arr as $key){
+			switch($key){
+				case 'create_time':
+					$value = date("Y-m-d H:i:s", time());
+					break;
+				case 'date':
+					$value = (isset($_POST) && isset($_POST['work_day'])) ? $_POST['work_day']." 00:00:00": date("Y-m-d 00:00:00", time());
+					break;
+				default:
+					$value = (isset($_POST) && isset($_POST[$key])) ? $_POST[$key]: '';
+			}
+			//
+			$arr[] = $value;
+		}
 		$insert_id = self::sql_query($sql, $arr, 1);
 		return $insert_id;
 
@@ -1229,8 +1243,9 @@ class AttendanceClass {
 	// 管理画面での編集データの取得
 	public function get_id_data(){
 
+		$did = (isset($_GET) && $_GET['did']) ? $_GET['did']: 0;
 		$sql = "SELECT * FROM ".OSAM_PLUGIN_TABLE_NAME." WHERE `data_id` = %d";
-		$arr = array($_GET['did']);
+		$arr = array($did);
 		$data = self::sql_get($sql, $arr);
 		if(!empty($data[0]->user_id)){
 			$user_data = self::getMember($data[0]->user_id);
@@ -1242,13 +1257,30 @@ class AttendanceClass {
 	// 管理画面での編集アップデート処理
 	private function update_post_write(){
 
-		$now = date("Y-m-d H:i:s", time());
+		$did = 0;
 		$sql = 'UPDATE '.OSAM_PLUGIN_TABLE_NAME.' SET `text` = %s, `start_time` = %d, `start_i_time` = %d, `finish_time` = %d, `finish_i_time` = %d, `break_start_time` = %d, `break_start_i_time` = %d, `break_finish_time` = %d, `break_finish_i_time` = %d, `break_point` = %d, `over_start_time` = %d, `over_start_i_time` = %d, `over_finish_time` = %d, `over_finish_i_time` = %d, `over_point` = %d, `update_time` = %s WHERE `user_id` = %d AND `data_id` = %d';
-		$arr = array($_POST['text'], $_POST['start_time'], $_POST['start_i_time'], $_POST['finish_time'], $_POST['finish_i_time'], $_POST['break_start_time'], $_POST['break_start_i_time'], $_POST['break_finish_time'], $_POST['break_finish_i_time'], $_POST['break_point'], $_POST['over_start_time'], $_POST['over_start_i_time'], $_POST['over_finish_time'], $_POST['over_finish_i_time'], $_POST['over_point'], $now, $_POST['id'], $_POST['did']);
+		$key_arr = array('text', 'start_time', 'start_i_time', 'finish_time', 'finish_i_time', 'break_start_time', 'break_start_i_time', 'break_finish_time', 'break_finish_i_time', 'break_point', 'over_start_time', 'over_start_i_time', 'over_finish_time', 'over_finish_i_time', 'over_point', 'update_time', 'id', 'did');
+		$arr = array();
+		// チェックして格納
+		foreach($key_arr as $key){
+			switch($key){
+				case 'update_time':
+					$value = date("Y-m-d H:i:s", time());
+					break;
+				case 'did':
+					$value = (isset($_POST) && isset($_POST[$key])) ? $_POST[$key]: '';
+					$did = $value;
+					break;
+				default:
+					$value = (isset($_POST) && isset($_POST[$key])) ? $_POST[$key]: '';
+			}
+			//
+			$arr[] = $value;
+		}
 		$return_data = self::sql_query($sql, $arr);
 
 		if(stristr($return_data, "data_id")){
-			$update_id = self::h($_POST['did']);
+			$update_id = self::h($did);
 		}else{
 			$update_id = '';
 		}
@@ -1284,28 +1316,28 @@ class AttendanceClass {
 	// ついでに検索条件のテキストも取得
 	public function get_list_sql($array=array()){
 
-		global $plugin_user_data;
-		global $plugin_option_data;
+		global $am_plugin_user_data;
+		global $am_plugin_option_data;
 		$where = '';
 		$parameter = array();
 		$search_word = '';
 
 		// 管理者以外は自分の勤怠しか操作できない
-		if($plugin_user_data['level']!='administrator'){
+		if($am_plugin_user_data['level']!='administrator'){
 			$where .= "`user_id`= %d AND ";
-			$parameter[] = $plugin_user_data[ID];
+			$parameter[] = $am_plugin_user_data['ID'];
 		}else{ // 管理者のみ実行可能
 			// ユーザIDの指定があれば
 			if(!empty($array['uid'])){
 				$where .= "`user_id`= %d AND ";
 				$parameter[] = $array['uid'];
 				$member_data = self::getMember($array['uid']);
-				if($plugin_user_data['level']=='administrator'){
+				if($am_plugin_user_data['level']=='administrator'){
 					$search_word .= 'ユーザ: '.self::h($member_data[0]['name']).' / ';
 				}
 			}
 		}
-		if(!stristr($search_word, "ユーザ") && $plugin_user_data['level']=='administrator'){
+		if(!stristr($search_word, "ユーザ") && $am_plugin_user_data['level']=='administrator'){
 			$search_word .= '全ユーザ / ';
 		}
 		// キーワード
@@ -1325,7 +1357,7 @@ class AttendanceClass {
 		$where .= "`date` <= %s AND ";
 		if(empty($array['end_day'])){
 			// 基本設定で設定されている期間にする
-			switch($plugin_option_data['admin-list']){
+			switch($am_plugin_option_data['admin-list']){
 				case '1':
 					$end_time = strtotime("+1 week", time()); // 1週間後
 					break;
