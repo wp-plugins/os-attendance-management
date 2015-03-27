@@ -17,6 +17,7 @@ if(class_exists('AttendanceAdmin')){
 				<p>新規作成でユーザごとの勤務時間を作成できます。</p>
 				<p>[attendance] というショートコードで記事内に表示できます。</p>
 				<p>詳しくは<a href="admin.php?page=attendance-management-help.php">ヘルプページ</a>をご覧ください</p>
+				<p>お知らせやプラグインに関する情報など、<a href="http://lp.olivesystem.jp/category/wordpress-plugins">ブログで告知</a>しますので、チェックしてみてください。</p>
 			</div>
 			<h2>注意</h2>
 			<div>
